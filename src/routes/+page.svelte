@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import exportWebWorker from '$lib/workers/export?worker';
+	import Timeline from '../lib/components/timeline/Timeline.svelte';
 
 	let exportWorker;
 
@@ -26,30 +27,36 @@
 
 		exportWorker.postMessage({
 			width: 1920,
-			height: 1080,
+			height: 1080
 		});
 
 		exportWorker.onmessage = async (event) => {
 			if (event.data.shouldCloseStream) {
-    		await fileWritableStream.close();
-        console.log(new Date().getTime())
-				console.log('File saved!')
+				await fileWritableStream.close();
+				console.log(new Date().getTime());
+				console.log('File saved!');
 				return;
 			}
 			fileWritableStream.write({
 				type: 'write',
 				data: event.data.data,
-				position: event.data.position,
-			})
-		}
+				position: event.data.position
+			});
+		};
 	};
 </script>
 
-<button on:click={exportVideo}>Export</button>
+<div>
+	<button on:click={exportVideo}>Export</button>
+</div>
+<Timeline />
 
 <style>
 	:global(body) {
 		padding: 0;
 		margin: 0;
+	}
+	:global(*, *::before, *::after) {
+		box-sizing: border-box;
 	}
 </style>
