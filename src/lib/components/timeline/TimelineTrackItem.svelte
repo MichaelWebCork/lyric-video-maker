@@ -1,4 +1,5 @@
 <script>
+	import { tick } from 'svelte';
 	import { lyricStore, selectedTimelineTrackItemStore } from '../../stores/lyricStore';
 
 	export let scale;
@@ -6,11 +7,20 @@
 
 	const placeholderPadding = 5;
 
+	let isEditing = false;
+	let itemTextElement;
 	let moving = false;
 	let selectedHandle;
 	let text = lyric.text;
+
 	$: placeholderWidth = lyric.start * scale - placeholderPadding;
 	$: width = (lyric.end - lyric.start) * scale;
+
+	$: isSelected = $selectedTimelineTrackItemStore === lyric.id
+
+	$: if (!isSelected) {
+		isEditing = false;
+	} 
 
 	const updateLyric = (updates) => {
 		lyricStore.update((lyrics) => {
@@ -54,6 +64,13 @@
 		selectedHandle = handle;
 		$selectedTimelineTrackItemStore = lyric.id;
 	};
+
+	const onDoubleClick = async () => {
+		if (!isSelected) { return; }
+		isEditing = true;
+		await tick();
+		itemTextElement.focus();
+	}
 </script>
 
 <div class="timeline-track__placeholder" style="width: {placeholderWidth}px;" />
@@ -63,13 +80,14 @@
 	role="button"
 	tabindex=""
 	class="timeline-track-item"
-	class:selected={$selectedTimelineTrackItemStore === lyric.id}
+	class:selected={isSelected}
 	style="width: {width}px;"
 	on:mousedown|stopPropagation={onMouseDown}
+	on:dblclick={onDoubleClick}
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div class="timeline-track-item-handle" on:mousedown|stopPropagation={() => onMouseDown('l')} />
-	<div class="timeline-track-item-text">
+		<div class="timeline-track-item-text" bind:this={itemTextElement} contenteditable={isEditing}>
 		{text}
 	</div>
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
