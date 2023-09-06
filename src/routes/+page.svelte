@@ -3,6 +3,7 @@
 	import { browser } from '$app/environment';
 	import exportWebWorker from '$lib/workers/export?worker';
 	import Timeline from '../lib/components/timeline/Timeline.svelte';
+	import { lyrics } from '$lib/lyrics.json'
 
 	let exportWorker;
 
@@ -49,7 +50,7 @@
 <div>
 	<button on:click={exportVideo}>Export</button>
 </div>
-<Timeline />
+<Timeline lyrics={lyrics} />
 
 <style>
 	:global(body) {

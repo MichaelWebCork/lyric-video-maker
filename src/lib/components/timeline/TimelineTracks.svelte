@@ -1,10 +1,16 @@
 <script>
 	import TimelineTrack from "./TimelineTrack.svelte";
 
+  export let lyrics;
+
+  $: console.log(lyrics);
+
 </script>
 <div class="timeline-tracks">
   <div class="timeline-tracks__tracks-container">
-    <TimelineTrack/>
+    {#each lyrics as lyric }
+      <TimelineTrack/>
+    {/each}
   </div>
 </div>
 
@@ -22,4 +28,9 @@
     min-height: 100%;
     user-select: none;
   }
+
+  .timeline-tracks__tracks-container :global(.timeline-track) {
+    margin-bottom: 5px;
+  }
+
 </style>
