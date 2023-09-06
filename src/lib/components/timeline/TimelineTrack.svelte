@@ -1,11 +1,16 @@
 <script>
 	import TimelineTrackItem from './TimelineTrackItem.svelte';
+
+	export let scale;
+	export let lyric;
+
 	let currentMouseXPosition;
+
 </script>
 
 <div class="timeline-track">
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<TimelineTrackItem mouseX={currentMouseXPosition}/>
+		<TimelineTrackItem mouseX={currentMouseXPosition} {lyric} {scale} />
 </div>
 
 <style lang="scss">
@@ -13,7 +18,6 @@
 		position: relative;
 		width: 100%;
 		height: 30px;
-		overflow: hidden;
 		display: flex;
 	}
 </style>

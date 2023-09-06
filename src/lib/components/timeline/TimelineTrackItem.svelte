@@ -1,27 +1,46 @@
 <script>
-	export let text = 'Hello World';
-	export let width = 200;
-	export let left = 100;	
-	
+	import { lyricStore } from '../../stores/lyricStore';
+
+	export let scale;
+	export let lyric;
+
+	const placeholderPadding = 5;
+
 	let moving = false;
 	let selectedHandle;
-	const placeholderPadding = 5;
-	let placeholderWidth = left - placeholderPadding;
+	let text = lyric.text;
+	$: placeholderWidth = lyric.start * scale - placeholderPadding;
+	$: width = (lyric.end - lyric.start) * scale;
+
+	const updateLyric = (updates) => {
+		lyricStore.update((lyrics) => {
+			return lyrics.map((l) => {
+				if (l.id !== lyric.id) {
+					return l;
+				}
+				return {
+					...lyric,
+					...updates
+				};
+			});
+		});
+	};
 
 	function onMouseMove(e) {
 		if (moving) {
-			const x = e.movementX;
+			const xWithoutScaling = e.movementX / scale;
 			if (selectedHandle === 'r') {
-				width += x;
+				updateLyric({ end: lyric.end + xWithoutScaling });
 				return;
 			}
 			if (selectedHandle === 'l') {
-				width -= x;
+				updateLyric({ start: lyric.start + xWithoutScaling });
+				return;
 			}
-			const newLeft = left + x;
-			if (newLeft <= 0) { return; }
-			left = newLeft;
-			placeholderWidth = left - placeholderPadding;
+			updateLyric({
+				start: lyric.start + xWithoutScaling,
+				end: lyric.end + xWithoutScaling,
+			});
 		}
 	}
 
@@ -36,11 +55,11 @@
 	};
 </script>
 
-<div class="timeline-track__placeholder" style="width: {placeholderWidth}px;"/>
+<div class="timeline-track__placeholder" style="width: {placeholderWidth}px;" />
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	class="timeline-track-item"
-	style="width: {width}px; left: {left}px;"
+	style="width: {width}px; left: {lyric.start}px;"
 	on:mousedown|stopPropagation={onMouseDown}
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -56,12 +75,13 @@
 
 <style lang="scss">
 	.timeline-track__placeholder {
+		flex-shrink: 0;
 		background-color: #dddddf14;
 		height: 100%;
 	}
 
 	.timeline-track-item {
-    position: absolute;
+		flex-shrink: 0;
 		display: flex;
 		height: 100%;
 		min-width: 1px;

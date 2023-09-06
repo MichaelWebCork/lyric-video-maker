@@ -3,7 +3,12 @@
 	import { browser } from '$app/environment';
 	import exportWebWorker from '$lib/workers/export?worker';
 	import Timeline from '../lib/components/timeline/Timeline.svelte';
-	import { lyrics } from '$lib/lyrics.json'
+	import { lyrics } from '$lib/lyrics.json';
+	import { lyricStore } from '../lib/stores/lyricStore';
+
+	$lyricStore = [...Object.values(lyrics)]
+
+	console.log($lyricStore)
 
 	let exportWorker;
 
@@ -49,8 +54,12 @@
 
 <div>
 	<button on:click={exportVideo}>Export</button>
+
+
+	<input type="number" bind:value={$lyricStore[1].start}>
+	{$lyricStore[1].start}
 </div>
-<Timeline lyrics={lyrics} />
+<Timeline/>
 
 <style>
 	:global(body) {
