@@ -8,8 +8,6 @@
 
 	$lyricStore = [...Object.values(lyrics)]
 
-	console.log($lyricStore)
-
 	let exportWorker;
 
 	onMount(async () => {

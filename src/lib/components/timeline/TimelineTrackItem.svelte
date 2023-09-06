@@ -1,5 +1,5 @@
 <script>
-	import { lyricStore } from '../../stores/lyricStore';
+	import { lyricStore, selectedTimelineTrackItemStore } from '../../stores/lyricStore';
 
 	export let scale;
 	export let lyric;
@@ -39,7 +39,7 @@
 			}
 			updateLyric({
 				start: lyric.start + xWithoutScaling,
-				end: lyric.end + xWithoutScaling,
+				end: lyric.end + xWithoutScaling
 			});
 		}
 	}
@@ -52,14 +52,19 @@
 	const onMouseDown = (handle) => {
 		moving = true;
 		selectedHandle = handle;
+		$selectedTimelineTrackItemStore = lyric.id;
 	};
 </script>
 
 <div class="timeline-track__placeholder" style="width: {placeholderWidth}px;" />
 <!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
+	role="button"
+	tabindex=""
 	class="timeline-track-item"
-	style="width: {width}px; left: {lyric.start}px;"
+	class:selected={$selectedTimelineTrackItemStore === lyric.id}
+	style="width: {width}px;"
 	on:mousedown|stopPropagation={onMouseDown}
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -88,6 +93,15 @@
 		cursor: grab;
 		align-items: center;
 		justify-content: space-between;
+
+		&:hover,
+		&:focus,
+		&:active,
+		&.selected {
+			border: 1px solid rgb(255, 255, 0);
+			border-left: 0;
+			border-right: 0;
+		}
 	}
 
 	.timeline-track-item-handle {

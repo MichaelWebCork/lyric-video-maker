@@ -4,8 +4,6 @@
 	export let lyrics;
 	export let scale;
 
-	console.log($lyrics[1].start)
-
   $: spacerWidth = ($lyrics[$lyrics.length-1].end * 2) * scale;
 </script>
 
