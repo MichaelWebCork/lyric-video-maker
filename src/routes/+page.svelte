@@ -52,10 +52,6 @@
 
 <div>
 	<button on:click={exportVideo}>Export</button>
-
-
-	<input type="number" bind:value={$lyricStore[1].start}>
-	{$lyricStore[1].start}
 </div>
 <Timeline/>
 

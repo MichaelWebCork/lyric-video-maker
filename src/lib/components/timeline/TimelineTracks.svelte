@@ -29,29 +29,8 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		padding: 30px 20px 0;
 		min-height: 100%;
 		user-select: none;
-		overflow-x: auto;
-
-		&::-webkit-scrollbar {
-			width: 19px;
-			height: 19px;
-			background-color: #202024;
-			z-index: 2;
-			position: relative;
-		}
-
-		&.app-timeline-trackpad::-webkit-scrollbar-corner {
-			background-color: #202024;
-		}
-
-		&::-webkit-scrollbar-thumb {
-			border-radius: 10px;
-			border: 7px solid #202024;
-			background-color: #545459;
-			background-clip: content-box;
-		}
 	}
 
   .timeline-tracks__scroll-spacer {

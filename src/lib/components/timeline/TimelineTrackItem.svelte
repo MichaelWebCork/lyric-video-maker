@@ -16,11 +16,11 @@
 	$: placeholderWidth = lyric.start * scale - placeholderPadding;
 	$: width = (lyric.end - lyric.start) * scale;
 
-	$: isSelected = $selectedTimelineTrackItemStore === lyric.id
+	$: isSelected = $selectedTimelineTrackItemStore === lyric.id;
 
 	$: if (!isSelected) {
 		isEditing = false;
-	} 
+	}
 
 	const updateLyric = (updates) => {
 		lyricStore.update((lyrics) => {
@@ -44,11 +44,21 @@
 				return;
 			}
 			if (selectedHandle === 'l') {
-				updateLyric({ start: lyric.start + xWithoutScaling });
+				const start = lyric.start + xWithoutScaling;
+				if (start <= 0) {
+					updateLyric({ start: 0 });
+					return;
+				}
+				updateLyric({ start });
+				return;
+			}
+			const start = lyric.start + xWithoutScaling;
+			if (start <= 0) {
+				updateLyric({ start: 0 });
 				return;
 			}
 			updateLyric({
-				start: lyric.start + xWithoutScaling,
+				start,
 				end: lyric.end + xWithoutScaling
 			});
 		}
@@ -66,11 +76,13 @@
 	};
 
 	const onDoubleClick = async () => {
-		if (!isSelected) { return; }
+		if (!isSelected) {
+			return;
+		}
 		isEditing = true;
 		await tick();
 		itemTextElement.focus();
-	}
+	};
 </script>
 
 <div class="timeline-track__placeholder" style="width: {placeholderWidth}px;" />
@@ -81,13 +93,13 @@
 	tabindex=""
 	class="timeline-track-item"
 	class:selected={isSelected}
-	style="width: {width}px;"
+	style="width: {width}px; left: {placeholderWidth + placeholderPadding}px"
 	on:mousedown|stopPropagation={onMouseDown}
 	on:dblclick={onDoubleClick}
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div class="timeline-track-item-handle" on:mousedown|stopPropagation={() => onMouseDown('l')} />
-		<div class="timeline-track-item-text" bind:this={itemTextElement} contenteditable={isEditing}>
+	<div class="timeline-track-item-text" bind:this={itemTextElement} contenteditable={isEditing}>
 		{text}
 	</div>
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -104,6 +116,7 @@
 	}
 
 	.timeline-track-item {
+		position: absolute;
 		flex-shrink: 0;
 		display: flex;
 		height: 100%;
