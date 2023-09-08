@@ -7,6 +7,7 @@
 	import Timeline from '../lib/components/timeline/Timeline.svelte';
 	import { lyrics } from '$lib/lyrics.json';
 	import { lyricStore } from '../lib/stores/lyricStore';
+	import AspectRatioContainer from '../lib/components/AspectRatioContainer.svelte';
 
 	$lyricStore = [...Object.values(lyrics)];
 
@@ -188,7 +189,9 @@
 			newLyricAnimation.end
 		);
 		lyricAninmations = lyricAninmations.map((animation) => {
-			if (animation.id !== id) { return animation; }
+			if (animation.id !== id) {
+				return animation;
+			}
 			return newLyricAnimation;
 		});
 	};
@@ -209,14 +212,24 @@
 	const onPause = () => tl.pause();
 </script>
 
-<div>
-	<canvas class="preview-canvas" bind:this={canvasElement} />
-	<button on:click={exportVideo}>Export</button>
-	<button on:click={onBackToStart}>Restart</button>
-	<button on:click={onPause}>Pause</button>
-	<button on:click={onPlay}>Play</button>
+<div class="editor">
+	<div class="editor__sidebar">test</div>
+	<div class="editor__element-edit-section">el edit section</div>
+	<div class="editor__element-preview-section">
+		<AspectRatioContainer>
+			<canvas class="preview-canvas" bind:this={canvasElement} />
+		</AspectRatioContainer>
+		<div>
+			<button on:click={exportVideo}>Export</button>
+			<button on:click={onBackToStart}>Restart</button>
+			<button on:click={onPause}>Pause</button>
+			<button on:click={onPlay}>Play</button>
+		</div>
+	</div>
+	<div class="editor__element-timeline-section">
+		<Timeline bind:cursorX on:cursorMove={onCursorMove} on:timelineUpdate={onTimelineUpdate} />
+	</div>
 </div>
-<Timeline bind:cursorX on:cursorMove={onCursorMove} on:timelineUpdate={onTimelineUpdate} />
 
 <style>
 	:global(body) {
@@ -226,8 +239,36 @@
 	:global(*, *::before, *::after) {
 		box-sizing: border-box;
 	}
+
+	.editor {
+		height: 100vh;
+		display: grid;
+		grid-template-columns: 80px repeat(4, 3fr);
+		grid-template-rows: repeat(5, 1fr);
+		grid-column-gap: 0px;
+		grid-row-gap: 0px;
+		background-color: #202024;
+	}
+
+	.editor__sidebar {
+		grid-area: 1 / 1 / 5 / 2;
+	}
+	.editor__element-edit-section {
+		grid-area: 1 / 2 / 5 / 3;
+	}
+	.editor__element-preview-section {
+		grid-area: 1 / 3 / 5 / 6;
+		display: flex;
+		flex-direction: column;
+	}
+	.editor__element-timeline-section {
+		grid-area: 5 / 1 / 6 / 6;
+	}
+
 	.preview-canvas {
-		width: 854;
-		height: 480px;
+		/* width: 854px;
+		height: 480px; */
+		width: 100%;
+		height: 100%;
 	}
 </style>
