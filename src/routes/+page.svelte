@@ -31,7 +31,8 @@
 
 		exportWorker.postMessage({
 			width: 1920,
-			height: 1080
+			height: 1080,
+			lyrics: $lyricStore,
 		});
 
 		exportWorker.onmessage = async (event) => {

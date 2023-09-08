@@ -1,8 +1,6 @@
 import { Application, Text } from "@pixi/webworker";
 import gsap from "gsap";
 import * as WebMMuxer from 'webm-muxer';
-import { lyrics } from '$lib/lyrics.json'
-
 
 const renderVideo = async (data) => {
   const fps = 24;
@@ -41,7 +39,7 @@ const renderVideo = async (data) => {
   tl.seek(0);
 
   // Generate gsap animations for each line
-  const lyricAninmations = lyrics.map(({ id, start, end, text }) => {
+  const lyricAninmations = data.lyrics.map(({ id, start, end, text }) => {
     const pixiText = new Text(text);
     pixiText.anchor.set(0.5);
     return {
