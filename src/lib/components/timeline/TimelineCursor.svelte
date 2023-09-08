@@ -1,6 +1,10 @@
 <script>
+	import { createEventDispatcher } from "svelte";
+
   export let scale;
   export let x = 0;
+
+  const dispatch = createEventDispatcher();
   
 	let moving = false;
   let xPadding = 10;
@@ -26,7 +30,8 @@
 	}
 
 	const onMouseDown = () => {
-		moving = true;
+    moving = true;
+    dispatch('cursorMove');
 	};
 </script>
 

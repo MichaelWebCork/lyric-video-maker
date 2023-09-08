@@ -1,11 +1,16 @@
 <script>
+	import { createEventDispatcher } from 'svelte';
 	import { lyricStore } from '../../stores/lyricStore';
 	import TimelineCursor from './TimelineCursor.svelte';
 	import TimelineMarkers from './TimelineMarkers.svelte';
 	import TimelineToolbar from './TimelineToolbar.svelte';
 	import TimelineTracks from './TimelineTracks.svelte';
 
+	export let cursorX = 0;
+
+  const dispatch = createEventDispatcher();
 	const initialScalse = 60;
+	
 	let scale = 60;
 
 	const onZoom = ({ detail }) => {
@@ -22,12 +27,15 @@
 	const onResetZoom = () => {
 		scale = initialScalse;
 	};
+	const onCursorMove = () => {
+    dispatch('cursorMove');
+	}
 </script>
 
 <div class="timeline">
 	<TimelineToolbar on:zoom={onZoom} on:resetZoom={onResetZoom} />
 	<div class="timeline__scroll-container">
-		<TimelineCursor {scale} />
+		<TimelineCursor {scale} bind:x={cursorX} on:cursorMove={onCursorMove}/>
 		<TimelineMarkers {scale} />
 		{#if $lyricStore}
 			<TimelineTracks lyrics={lyricStore} {scale} />

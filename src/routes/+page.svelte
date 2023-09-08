@@ -13,6 +13,12 @@
 	let exportWorker;
 	let canvasElement;
 	let currentTime;
+	let cursorX = 0;
+
+	$: {
+		if (tl.isActive()) { break $; }
+		tl.seek(cursorX);
+	};
 
 	const tl = gsap.timeline();
 	const removeLastAnimationTimestamps = [];
@@ -79,9 +85,13 @@
 			// sync pixi and gsap
 			app.ticker.stop();
 			gsap.ticker.fps(fps);
+			let previousTime = 0;
 			gsap.ticker.add(() => {
 				currentTime = tl.time();
-				// console.log(currentTime)
+				if (tl.isActive() && currentTime !== previousTime) {
+					cursorX = currentTime;
+					console.log(cursorX)
+				}
 				// console.log(removeLastAnimationTimestamps[0])
 				if (currentTime >= removeLastAnimationTimestamps[0]) {
 					console.log('remove');
@@ -128,6 +138,11 @@
 			});
 		};
 	};
+
+	const onCursorMove = () => {
+		tl.pause();
+	};
+
 	const onBackToStart = () => {
 		tl.seek(0);
 		tl.resume();
@@ -143,7 +158,7 @@
 	<button on:click={onPause}>Pause</button>
 	<button on:click={onPlay}>Play</button>
 </div>
-<Timeline />
+<Timeline bind:cursorX={cursorX} on:cursorMove={onCursorMove}/>
 
 <style>
 	:global(body) {
