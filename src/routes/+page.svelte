@@ -6,10 +6,12 @@
 	import exportWebWorker from '$lib/workers/export?worker';
 	import Timeline from '../lib/components/timeline/Timeline.svelte';
 	import { lyrics } from '$lib/lyrics.json';
-	import { lyricStore } from '../lib/stores/lyricStore';
+	import { lyricStore, selectedTimelineTrackItemIdStore } from '../lib/stores/lyricStore';
 	import AspectRatioContainer from '../lib/components/AspectRatioContainer.svelte';
 
 	$lyricStore = [...Object.values(lyrics)];
+
+	$: console.log($selectedTimelineTrackItemIdStore)
 
 	let exportWorker;
 	let canvasElement;

@@ -55,6 +55,7 @@
 		display: flex;
 		height: 100%;
 		justify-content: center;
+		pointer-events: none;
 	}
 	.timeline-cursor__wrapper {
 		position: relative;
@@ -79,5 +80,7 @@
 		color: #151519;
 		padding: 2px 4px;
 		left: 1px;
+		pointer-events: all;
+		cursor: grab;
 	}
 </style>

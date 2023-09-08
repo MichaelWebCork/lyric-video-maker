@@ -1,6 +1,6 @@
 <script>
 	import { createEventDispatcher, tick } from 'svelte';
-	import { lyricStore, selectedTimelineTrackItemStore } from '../../stores/lyricStore';
+	import { lyricStore, selectedTimelineTrackItemIdStore } from '../../stores/lyricStore';
 
 	export let scale;
 	export let lyric;
@@ -17,7 +17,7 @@
 	$: placeholderWidth = lyric.start * scale - placeholderPadding;
 	$: width = (lyric.end - lyric.start) * scale;
 
-	$: isSelected = $selectedTimelineTrackItemStore === lyric.id;
+	$: isSelected = $selectedTimelineTrackItemIdStore === lyric.id;
 
 	$: if (!isSelected) {
 		isEditing = false;
@@ -76,7 +76,7 @@
 	const onMouseDown = (handle) => {
 		moving = true;
 		selectedHandle = handle;
-		$selectedTimelineTrackItemStore = lyric.id;
+		$selectedTimelineTrackItemIdStore = lyric.id;
 	};
 
 	const onDoubleClick = async () => {

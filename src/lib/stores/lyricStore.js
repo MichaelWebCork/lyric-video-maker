@@ -1,3 +1,3 @@
 import { writable } from 'svelte/store';
 export const lyricStore = writable([]);
-export const selectedTimelineTrackItemStore = writable(-1);
+export const selectedTimelineTrackItemIdStore = writable(-1);
