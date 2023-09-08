@@ -10,9 +10,6 @@
 <div class="timeline-tracks">
 	<div class="timeline-tracks__tracks-container">
 		{#each $lyrics as lyric}
-		<!-- <div>
-			{lyric.start}
-		</div> -->
 			<TimelineTrack {lyric} {scale}/>
 		{/each}
 		<div class="timeline-tracks__scroll-spacer" style="width: {spacerWidth}px;"/>

@@ -1,11 +1,12 @@
 <script>
 	import { lyricStore } from '../../stores/lyricStore';
+	import TimelineCursor from './TimelineCursor.svelte';
 	import TimelineMarkers from './TimelineMarkers.svelte';
 	import TimelineToolbar from './TimelineToolbar.svelte';
 	import TimelineTracks from './TimelineTracks.svelte';
 
-	const initialScalse = 50;
-	let scale = 50;
+	const initialScalse = 60;
+	let scale = 60;
 
 	const onZoom = ({ detail }) => {
 		if (detail === 'in') {
@@ -26,6 +27,7 @@
 <div class="timeline">
 	<TimelineToolbar on:zoom={onZoom} on:resetZoom={onResetZoom} />
 	<div class="timeline__scroll-container">
+		<TimelineCursor {scale} />
 		<TimelineMarkers {scale} />
 		{#if $lyricStore}
 			<TimelineTracks lyrics={lyricStore} {scale} />
@@ -43,6 +45,7 @@
 		color: #fff;
 	}
 	.timeline__scroll-container {
+		position: relative;
 		overflow-x: auto;
 		flex: 1;
 		display: flex;
