@@ -1,8 +1,11 @@
 <script>
+	import { createEventDispatcher } from 'svelte';
 	import TimelineTrack from './TimelineTrack.svelte';
 
 	export let lyrics;
 	export let scale;
+
+	const dispatch = createEventDispatcher();
 
   $: spacerWidth = ($lyrics[$lyrics.length-1].end * 2) * scale;
 </script>
@@ -10,7 +13,7 @@
 <div class="timeline-tracks">
 	<div class="timeline-tracks__tracks-container">
 		{#each $lyrics as lyric}
-			<TimelineTrack {lyric} {scale}/>
+			<TimelineTrack {lyric} {scale} on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)}/>
 		{/each}
 		<div class="timeline-tracks__scroll-spacer" style="width: {spacerWidth}px;"/>
 	</div>

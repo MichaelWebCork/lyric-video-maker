@@ -14,11 +14,14 @@
 	let canvasElement;
 	let currentTime;
 	let cursorX = 0;
+	let lyricAninmations;
 
 	$: {
-		if (tl.isActive()) { break $; }
+		if (tl.isActive()) {
+			break $;
+		}
 		tl.seek(cursorX);
-	};
+	}
 
 	const tl = gsap.timeline();
 	const removeLastAnimationTimestamps = [];
@@ -31,10 +34,9 @@
 	};
 	let app;
 
-
 	const setAnimations = () => {
 		// Generate gsap animations for each line
-		const lyricAninmations = $lyricStore.map(({ id, start, end, text }) => {
+		lyricAninmations = $lyricStore.map(({ id, start, end, text }) => {
 			const pixiText = new PIXI.Text(text);
 			pixiText.anchor.set(0.5);
 			return {
@@ -64,6 +66,16 @@
 				},
 				line.start
 			);
+			tl.to(
+				currentLine,
+				{
+					duration: 0,
+					alpha: 0,
+					onUpdateParams: [currentLine],
+					onComplete: () => {}
+				},
+				line.end
+			);
 		});
 	};
 
@@ -90,11 +102,6 @@
 				currentTime = tl.time();
 				if (tl.isActive() && currentTime !== previousTime) {
 					cursorX = currentTime;
-					console.log(cursorX)
-				}
-				// console.log(removeLastAnimationTimestamps[0])
-				if (currentTime >= removeLastAnimationTimestamps[0]) {
-					console.log('remove');
 				}
 				app.ticker.update();
 			});
@@ -139,6 +146,57 @@
 		};
 	};
 
+	const updateAnimationById = (id) => {
+		const findById = (animation) => animation.id === id;
+		const animation = lyricAninmations.find(findById);
+		app.stage.removeChild(animation.text);
+		tl.remove(animation.text);
+
+		const { id: storeId, start, end, text } = $lyricStore.find(findById);
+		const pixiText = new PIXI.Text(text);
+		pixiText.anchor.set(0.5);
+		const newLyricAnimation = {
+			id: storeId,
+			start,
+			end,
+			text: pixiText
+		};
+		newLyricAnimation.text.x = centerCordinates.x;
+		newLyricAnimation.text.y = centerCordinates.y + 100;
+		newLyricAnimation.text.alpha = 0;
+		app.stage.addChild(newLyricAnimation.text);
+		tl.to(
+			newLyricAnimation.text,
+			{
+				x: newLyricAnimation.text.x,
+				y: centerCordinates.y,
+				duration: 0.5,
+				alpha: 1,
+				onUpdateParams: [newLyricAnimation.text],
+				onComplete: () => {}
+			},
+			newLyricAnimation.start
+		);
+		tl.to(
+			newLyricAnimation.text,
+			{
+				duration: 0,
+				alpha: 0,
+				onUpdateParams: [newLyricAnimation.text],
+				onComplete: () => {}
+			},
+			newLyricAnimation.end
+		);
+		lyricAninmations = lyricAninmations.map((animation) => {
+			if (animation.id !== id) { return animation; }
+			return newLyricAnimation;
+		});
+	};
+
+	const onTimelineUpdate = ({ detail }) => {
+		updateAnimationById(detail.id);
+	};
+
 	const onCursorMove = () => {
 		tl.pause();
 	};
@@ -158,7 +216,7 @@
 	<button on:click={onPause}>Pause</button>
 	<button on:click={onPlay}>Play</button>
 </div>
-<Timeline bind:cursorX={cursorX} on:cursorMove={onCursorMove}/>
+<Timeline bind:cursorX on:cursorMove={onCursorMove} on:timelineUpdate={onTimelineUpdate} />
 
 <style>
 	:global(body) {

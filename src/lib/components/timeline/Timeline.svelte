@@ -38,7 +38,7 @@
 		<TimelineCursor {scale} bind:x={cursorX} on:cursorMove={onCursorMove}/>
 		<TimelineMarkers {scale} />
 		{#if $lyricStore}
-			<TimelineTracks lyrics={lyricStore} {scale} />
+			<TimelineTracks lyrics={lyricStore} {scale} on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)}/>
 		{/if}
 	</div>
 </div>

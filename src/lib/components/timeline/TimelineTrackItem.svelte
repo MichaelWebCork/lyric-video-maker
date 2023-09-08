@@ -1,10 +1,11 @@
 <script>
-	import { tick } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 	import { lyricStore, selectedTimelineTrackItemStore } from '../../stores/lyricStore';
 
 	export let scale;
 	export let lyric;
 
+	const dispatch = createEventDispatcher();
 	const placeholderPadding = 5;
 
 	let isEditing = false;
@@ -65,6 +66,9 @@
 	}
 
 	function onMouseUp() {
+		if (moving) {
+			dispatch('timelineUpdate', { id: lyric.id })
+		}
 		moving = false;
 		selectedHandle = null;
 	}
