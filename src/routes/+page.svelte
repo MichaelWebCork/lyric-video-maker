@@ -137,7 +137,7 @@
 </script>
 
 <div>
-	<canvas bind:this={canvasElement} />
+	<canvas class="preview-canvas" bind:this={canvasElement} />
 	<button on:click={exportVideo}>Export</button>
 	<button on:click={onBackToStart}>Restart</button>
 	<button on:click={onPause}>Pause</button>
@@ -152,5 +152,9 @@
 	}
 	:global(*, *::before, *::after) {
 		box-sizing: border-box;
+	}
+	.preview-canvas {
+		width: 854;
+		height: 480px;
 	}
 </style>
