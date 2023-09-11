@@ -100,7 +100,7 @@
 
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
 
-<style lang="scss">
+<style>
 	.timeline-track__placeholder {
 		flex-shrink: 0;
 		background-color: #dddddf14;

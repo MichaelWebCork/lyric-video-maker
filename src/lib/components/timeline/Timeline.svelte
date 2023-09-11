@@ -8,9 +8,9 @@
 
 	export let cursorX = 0;
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 	const initialScalse = 60;
-	
+
 	let scale = 60;
 
 	const onZoom = ({ detail }) => {
@@ -28,22 +28,26 @@
 		scale = initialScalse;
 	};
 	const onCursorMove = () => {
-    dispatch('cursorMove');
-	}
+		dispatch('cursorMove');
+	};
 </script>
 
 <div class="timeline">
 	<TimelineToolbar on:zoom={onZoom} on:resetZoom={onResetZoom} />
 	<div class="timeline__scroll-container">
-		<TimelineCursor {scale} bind:x={cursorX} on:cursorMove={onCursorMove}/>
+		<TimelineCursor {scale} bind:x={cursorX} on:cursorMove={onCursorMove} />
 		<TimelineMarkers {scale} />
 		{#if $lyricStore}
-			<TimelineTracks lyrics={lyricStore} {scale} on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)}/>
+			<TimelineTracks
+				lyrics={lyricStore}
+				{scale}
+				on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)}
+			/>
 		{/if}
 	</div>
 </div>
 
-<style lang="scss">
+<style>
 	.timeline {
 		height: 500px;
 		background: #202024;
@@ -58,25 +62,15 @@
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		padding: 30px 20px 0;
+		padding: 20px 20px 0;
+	}
 
-		&::-webkit-scrollbar {
-			width: 19px;
-			height: 19px;
-			background-color: #202024;
-			z-index: 2;
-			position: relative;
-		}
+	.timeline__scroll-container > :global(.timeline-ruler) {
+		position: sticky;
+		top: 0;
+	}
 
-		&.app-timeline-trackpad::-webkit-scrollbar-corner {
-			background-color: #202024;
-		}
-
-		&::-webkit-scrollbar-thumb {
-			border-radius: 10px;
-			border: 7px solid #202024;
-			background-color: #545459;
-			background-clip: content-box;
-		}
+	.timeline__scroll-container > :global(.timeline-tracks) {
+		margin-top: 30px;
 	}
 </style>

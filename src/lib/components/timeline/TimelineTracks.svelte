@@ -19,7 +19,7 @@
 	</div>
 </div>
 
-<style lang="scss">
+<style>
 	.timeline-tracks {
 		flex-grow: 1;
 	}

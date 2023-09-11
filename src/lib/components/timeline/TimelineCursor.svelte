@@ -45,7 +45,7 @@
 
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
 
-<style lang="scss">
+<style>
 	.timeline-cursor {
 		position: absolute;
 		top: 0;

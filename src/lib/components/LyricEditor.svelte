@@ -78,12 +78,13 @@
 	{/each}
 </div>
 
-<style lang="scss">
+<style>
 	.lyric-editor {
-		color: #fff;
-		padding: 10px;
-		height: 100%;
-	}
+    color: #fff;
+    padding: 10px;
+    flex: 1;
+    overflow: auto;
+  }
 	.lyric-editor__text {
 		padding: 10px;
 		color: #a6a6a6;

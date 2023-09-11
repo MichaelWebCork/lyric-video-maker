@@ -15,9 +15,10 @@
   {/each}
 </div>
 
-<style lang="scss">
+<style>
   .timeline-ruler {
     display: flex;
+    position: fixed;
   }
 
   .timeline-ruler__marker {
@@ -27,6 +28,7 @@
     align-items: flex-start;
     flex-direction: column;
     padding-bottom: 5px;
+    z-index: 9;
   }
 
   .timeline-ruler__marker-line {

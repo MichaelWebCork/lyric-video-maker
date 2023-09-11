@@ -15,7 +15,7 @@
 		<TimelineTrackItem mouseX={currentMouseXPosition} {lyric} {scale} on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)} />
 </div>
 
-<style lang="scss">
+<style>
 	.timeline-track {
 		position: relative;
 		width: 100%;

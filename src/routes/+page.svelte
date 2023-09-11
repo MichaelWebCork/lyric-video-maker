@@ -9,6 +9,7 @@
 	import { lyricStore } from '../lib/stores/lyricStore';
 	import AspectRatioContainer from '../lib/components/AspectRatioContainer.svelte';
 	import LyricEditor from '../lib/components/LyricEditor.svelte';
+	import Tabs from '../lib/components/Tabs.svelte';
 
 	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
 
@@ -25,6 +26,10 @@
 		tl.seek(cursorX);
 	}
 
+	const elementEditorSectionTabs = [
+		{ key: 'lyrics', label: 'Lyrics' },
+		{ key: 'style', label: 'Style' },
+	];
 	const tl = gsap.timeline();
 	const removeLastAnimationTimestamps = [];
 	const fps = 24;
@@ -221,6 +226,7 @@
 <div class="editor">
 	<div class="editor__sidebar">test</div>
 	<div class="editor__element-edit-section">
+		<!-- <Tabs tabs={elementEditorSectionTabs} /> -->
 		<LyricEditor on:lyricSplit={onLyricSplit} />
 	</div>
 	<div class="editor__element-preview-section">
@@ -250,6 +256,24 @@
 	}
 	:global(*, *::before, *::after) {
 		box-sizing: border-box;
+		&::-webkit-scrollbar {
+			width: 19px;
+			height: 19px;
+			background-color: #202024;
+			z-index: 2;
+			position: relative;
+		}
+	
+		&.app-timeline-trackpad::-webkit-scrollbar-corner {
+			background-color: #202024;
+		}
+	
+		&::-webkit-scrollbar-thumb {
+			border-radius: 10px;
+			border: 7px solid #202024;
+			background-color: #545459;
+			background-clip: content-box;
+		}
 	}
 
 	.editor {
@@ -267,6 +291,8 @@
 	}
 	.editor__element-edit-section {
 		grid-area: 1 / 2 / 5 / 3;
+		display: flex;
+    flex-direction: column;
 	}
 	.editor__element-preview-section {
 		grid-area: 1 / 3 / 5 / 6;
@@ -278,8 +304,6 @@
 	}
 
 	.preview-canvas {
-		/* width: 854px;
-		height: 480px; */
 		width: 100%;
 		height: 100%;
 	}
