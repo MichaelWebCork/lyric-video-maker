@@ -12,8 +12,8 @@
 
 <div class="timeline-tracks">
 	<div class="timeline-tracks__tracks-container">
-		{#each $lyrics as lyric}
-			<TimelineTrack {lyric} {scale} on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)}/>
+		{#each $lyrics as $lyric}
+			<TimelineTrack lyric={$lyric} {scale} on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)}/>
 		{/each}
 		<div class="timeline-tracks__scroll-spacer" style="width: {spacerWidth}px;"/>
 	</div>

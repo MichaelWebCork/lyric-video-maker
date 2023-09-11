@@ -6,12 +6,11 @@
 	import exportWebWorker from '$lib/workers/export?worker';
 	import Timeline from '../lib/components/timeline/Timeline.svelte';
 	import { lyrics } from '$lib/lyrics.json';
-	import { lyricStore, selectedTimelineTrackItemIdStore } from '../lib/stores/lyricStore';
+	import { lyricStore } from '../lib/stores/lyricStore';
 	import AspectRatioContainer from '../lib/components/AspectRatioContainer.svelte';
+	import LyricEditor from '../lib/components/LyricEditor.svelte';
 
-	$lyricStore = [...Object.values(lyrics)];
-
-	$: console.log($selectedTimelineTrackItemIdStore)
+	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
 
 	let exportWorker;
 	let canvasElement;
@@ -37,8 +36,7 @@
 	};
 	let app;
 
-	const setAnimations = () => {
-		// Generate gsap animations for each line
+	const setLyricAnimations = () => {
 		lyricAninmations = $lyricStore.map(({ id, start, end, text }) => {
 			const pixiText = new PIXI.Text(text);
 			pixiText.anchor.set(0.5);
@@ -49,7 +47,9 @@
 				text: pixiText
 			};
 		});
+	};
 
+	const addAllAnimationsToTimeline = () => {
 		lyricAninmations.forEach((line, index) => {
 			removeLastAnimationTimestamps.push(Math.floor(line.end));
 			const currentLine = line.text;
@@ -109,7 +109,8 @@
 				app.ticker.update();
 			});
 
-			setAnimations();
+			setLyricAnimations();
+			addAllAnimationsToTimeline();
 
 			// tl.resume();
 		}
@@ -152,9 +153,10 @@
 	const updateAnimationById = (id) => {
 		const findById = (animation) => animation.id === id;
 		const animation = lyricAninmations.find(findById);
-		app.stage.removeChild(animation.text);
-		tl.remove(animation.text);
-
+		if (animation) {
+			app.stage.removeChild(animation.text);
+			tl.remove(animation.text);
+		}
 		const { id: storeId, start, end, text } = $lyricStore.find(findById);
 		const pixiText = new PIXI.Text(text);
 		pixiText.anchor.set(0.5);
@@ -198,8 +200,10 @@
 		});
 	};
 
-	const onTimelineUpdate = ({ detail }) => {
-		updateAnimationById(detail.id);
+	const onLyricSplit = ({ detail }) => {
+		updateAnimationById(detail.originalLyricId);
+		setLyricAnimations();
+		updateAnimationById(detail.newLyricId);
 	};
 
 	const onCursorMove = () => {
@@ -216,7 +220,9 @@
 
 <div class="editor">
 	<div class="editor__sidebar">test</div>
-	<div class="editor__element-edit-section">el edit section</div>
+	<div class="editor__element-edit-section">
+		<LyricEditor on:lyricSplit={onLyricSplit} />
+	</div>
 	<div class="editor__element-preview-section">
 		<AspectRatioContainer>
 			<canvas class="preview-canvas" bind:this={canvasElement} />
@@ -229,7 +235,11 @@
 		</div>
 	</div>
 	<div class="editor__element-timeline-section">
-		<Timeline bind:cursorX on:cursorMove={onCursorMove} on:timelineUpdate={onTimelineUpdate} />
+		<Timeline
+			bind:cursorX
+			on:cursorMove={onCursorMove}
+			on:timelineUpdate={({ detail }) => updateAnimationById(detail.id)}
+		/>
 	</div>
 </div>
 

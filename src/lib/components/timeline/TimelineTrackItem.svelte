@@ -12,29 +12,17 @@
 	let itemTextElement;
 	let moving = false;
 	let selectedHandle;
-	let text = lyric.text;
 
+	$: text = lyric.text;
 	$: placeholderWidth = lyric.start * scale - placeholderPadding;
 	$: width = (lyric.end - lyric.start) * scale;
-
 	$: isSelected = $selectedTimelineTrackItemIdStore === lyric.id;
-
 	$: if (!isSelected) {
 		isEditing = false;
 	}
 
 	const updateLyric = (updates) => {
-		lyricStore.update((lyrics) => {
-			return lyrics.map((l) => {
-				if (l.id !== lyric.id) {
-					return l;
-				}
-				return {
-					...lyric,
-					...updates
-				};
-			});
-		});
+		lyricStore.updateById({id: lyric.id, updates});
 	};
 
 	function onMouseMove(e) {
