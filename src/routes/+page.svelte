@@ -12,13 +12,14 @@
 	import Tabs from '../lib/components/Tabs.svelte';
 
 	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
-
+	
 	let exportWorker;
 	let canvasElement;
 	let currentTime;
 	let cursorX = 0;
 	let lyricAninmations;
-
+	let length;
+	
 	$: {
 		if (tl.isActive()) {
 			break $;
@@ -116,7 +117,7 @@
 
 			setLyricAnimations();
 			addAllAnimationsToTimeline();
-
+			length = tl.duration();
 			// tl.resume();
 		}
 	});
@@ -242,6 +243,7 @@
 	</div>
 	<div class="editor__element-timeline-section">
 		<Timeline
+			{length}
 			bind:cursorX
 			on:cursorMove={onCursorMove}
 			on:timelineUpdate={({ detail }) => updateAnimationById(detail.id)}

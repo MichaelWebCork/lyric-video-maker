@@ -6,20 +6,28 @@
 	import TimelineToolbar from './TimelineToolbar.svelte';
 	import TimelineTracks from './TimelineTracks.svelte';
 
+	export let length = 0;
 	export let cursorX = 0;
 
 	const dispatch = createEventDispatcher();
 	const initialScalse = 60;
+	const maxZoomIn = 60 * 2;
+	const maxZoomOut = 60 / 4;
 
 	let scale = 60;
 
 	const onZoom = ({ detail }) => {
 		if (detail === 'in') {
+			if (scale >= maxZoomIn) {
+				scale = maxZoomIn;
+			}
 			scale = scale * 2;
 			return;
 		}
 		const newScale = scale / 2;
-		if (newScale <= 0) {
+		console.log(newScale)
+		if (newScale <= maxZoomOut) {
+			scale = maxZoomOut;
 			return;
 		}
 		scale = newScale;
@@ -36,7 +44,7 @@
 	<TimelineToolbar on:zoom={onZoom} on:resetZoom={onResetZoom} />
 	<div class="timeline__scroll-container">
 		<TimelineCursor {scale} bind:x={cursorX} on:cursorMove={onCursorMove} />
-		<TimelineMarkers {scale} />
+		<TimelineMarkers {scale} {length}/>
 		{#if $lyricStore}
 			<TimelineTracks
 				lyrics={lyricStore}

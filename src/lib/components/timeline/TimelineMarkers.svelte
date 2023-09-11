@@ -1,16 +1,35 @@
 <script>
+  export let length;
   export let scale;
 
+  $: divideAmmountBy = 60 / scale
+
+  $: amount = Math.ceil((length + 10) / divideAmmountBy);
+
+  $: console.log(amount)
+
+  let percision = 16;
+  $: {
+    if (divideAmmountBy >= 1) { 
+      percision = 16;
+      break $;
+    }
+    if (divideAmmountBy <= .5) { 
+      percision = 19;
+      break $;
+    }
+  }
+
   const getTime = (index) => {
-    return new Date((index * 60) * 1000).toISOString().substring(11, 16)
+    return new Date((index * scale) * 1000 * divideAmmountBy).toISOString().substring(11, percision)
   }
 </script>
 
 <div class="timeline-ruler">
-  {#each Array(100) as _, index (index)}
-    <div class="timeline-ruler__marker" style="width: {scale}px;">
+  {#each Array(amount) as _, index (index)}
+    <div class="timeline-ruler__marker" style="width: {scale * divideAmmountBy}px;">
       <div class="timeline-ruler__marker-line"/>
-      <div class="timeline-ruler__marker-time">{ getTime(index) }</div>
+      <div class="timeline-ruler__marker-time">{ getTime(index * divideAmmountBy) }</div>
     </div>
   {/each}
 </div>
