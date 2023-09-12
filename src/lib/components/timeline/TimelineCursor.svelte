@@ -1,6 +1,8 @@
 <script>
 	import { createEventDispatcher } from "svelte";
 
+	export let yPosition;
+	export let height;
   export let scale;
   export let x = 0;
 
@@ -36,10 +38,10 @@
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="timeline-cursor" style="left: {xSclaed}px;" on:mousedown={onMouseDown}>
+<div class="timeline-cursor" style="height: {height}px; left: {xSclaed}px;" on:mousedown={onMouseDown}>
 	<div class="timeline-cursor__wrapper">
 		<div class="timeline-cursor__line" />
-		<div class="timeline-cursor__time">{ time }</div>
+		<div class="timeline-cursor__time" style="top: {yPosition}px">{ time }</div>
 	</div>
 </div>
 
@@ -53,9 +55,9 @@
 		left: 10px;
 		z-index: 2;
 		display: flex;
-		height: 100%;
 		justify-content: center;
 		pointer-events: none;
+		min-height: 100%;
 	}
 	.timeline-cursor__wrapper {
 		position: relative;
@@ -75,7 +77,6 @@
 		font-size: 11px;
 		line-height: 12px;
 		position: absolute;
-		top: 100px;
 		transform: translateX(-50%);
 		color: #151519;
 		padding: 2px 4px;

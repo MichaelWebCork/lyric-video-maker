@@ -54,7 +54,7 @@ const renderVideo = async (data) => {
   // Add each animation to the stage
   const removeLastAnimationTimestamps = [];
   // app.stage.removeChild(currentLine)
-  lyricAninmations.forEach((line, index) => {
+  lyricAninmations.forEach((line) => {
     removeLastAnimationTimestamps.push(Math.floor(line.end) * fps);
     const currentLine = line.text;
     currentLine.x = centerCordinates.x;
@@ -126,7 +126,6 @@ const renderVideo = async (data) => {
   // const totalFrameNumber = fps * tl.duration();
   const stepBy = 1 / (fps * tl.duration());
   for (let t = 0; t <= 1; t += stepBy) {
-    // console.log(`Encoding frame ${currentFrameNumber} of ${totalFrameNumber}`)
     currentTimeStamp = (currentFrameNumber / 30) * 1000000;
     tl.progress(t);
 

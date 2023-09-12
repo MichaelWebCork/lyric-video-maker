@@ -11,7 +11,7 @@
 	import LyricEditor from '../lib/components/LyricEditor.svelte';
 	import Tabs from '../lib/components/Tabs.svelte';
 
-	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
+	// $lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
 	
 	let exportWorker;
 	let canvasElement;
@@ -117,7 +117,8 @@
 
 			setLyricAnimations();
 			addAllAnimationsToTimeline();
-			length = tl.duration();
+			const duration = tl.duration();
+			length = duration > 0 ? duration : undefined;
 			// tl.resume();
 		}
 	});

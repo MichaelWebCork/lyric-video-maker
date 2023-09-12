@@ -2,8 +2,15 @@
 	import { createEventDispatcher, tick } from 'svelte';
 	import { lyricStore, selectedTimelineTrackItemIdStore } from '../stores/lyricStore';
 
-
   const dispatch = createEventDispatcher();
+
+	let lyricEditor;
+
+	// $: {
+	// 	selectedTimelineTrackItemIdStore
+		
+	// }
+
 
 	function getCaretPosition() {
 		if (window.getSelection && window.getSelection().getRangeAt) {
@@ -64,7 +71,7 @@
 	};
 </script>
 
-<div class="lyric-editor">
+<div class="lyric-editor" bind:this={lyricEditor}>
 	{#each $lyricStore as lryic}
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div

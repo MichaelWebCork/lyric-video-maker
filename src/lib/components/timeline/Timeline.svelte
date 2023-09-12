@@ -6,15 +6,21 @@
 	import TimelineToolbar from './TimelineToolbar.svelte';
 	import TimelineTracks from './TimelineTracks.svelte';
 
-	export let length = 0;
+	export let length = 60;
 	export let cursorX = 0;
 
 	const dispatch = createEventDispatcher();
 	const initialScalse = 60;
 	const maxZoomIn = 60 * 2;
 	const maxZoomOut = 60 / 4;
+	const cursorTimeYPositionOffset = 100;
+	let cursorTimeYPosition = cursorTimeYPositionOffset;
 
 	let scale = 60;
+	let timelineTracksContainer;
+
+	const cursorOffsetHeight = 52;
+	$: cursorHeight = timelineTracksContainer?.offsetHeight + cursorOffsetHeight || 0;
 
 	const onZoom = ({ detail }) => {
 		if (detail === 'in') {
@@ -25,7 +31,6 @@
 			return;
 		}
 		const newScale = scale / 2;
-		console.log(newScale)
 		if (newScale <= maxZoomOut) {
 			scale = maxZoomOut;
 			return;
@@ -38,20 +43,28 @@
 	const onCursorMove = () => {
 		dispatch('cursorMove');
 	};
+	const onRulerClick = ({ detail }) => {
+		cursorX = detail / scale;
+	};
+	const onscroll = (e) => {
+		cursorTimeYPosition =  e.srcElement.scrollTop + cursorTimeYPositionOffset;
+	};
 </script>
 
 <div class="timeline">
 	<TimelineToolbar on:zoom={onZoom} on:resetZoom={onResetZoom} />
-	<div class="timeline__scroll-container">
-		<TimelineCursor {scale} bind:x={cursorX} on:cursorMove={onCursorMove} />
-		<TimelineMarkers {scale} {length}/>
-		{#if $lyricStore}
-			<TimelineTracks
-				lyrics={lyricStore}
-				{scale}
-				on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)}
-			/>
-		{/if}
+	<div class="timeline__scroll-container" on:scroll={onscroll}>
+		<TimelineCursor {scale} height={cursorHeight} yPosition={cursorTimeYPosition} bind:x={cursorX} on:cursorMove={onCursorMove} />
+		<TimelineMarkers {scale} {length} on:rulerClick={onRulerClick} />
+		<div bind:this={timelineTracksContainer}>
+			{#if $lyricStore.length}
+				<TimelineTracks
+					lyrics={lyricStore}
+					{scale}
+					on:timelineUpdate={({ detail }) => dispatch('timelineUpdate', detail)}
+				/>
+			{/if}
+		</div>
 	</div>
 </div>
 
