@@ -2,15 +2,7 @@
 	import { createEventDispatcher, tick } from 'svelte';
 	import { lyricStore, selectedTimelineTrackItemIdStore } from '../stores/lyricStore';
 
-  const dispatch = createEventDispatcher();
-
-	let lyricEditor;
-
-	// $: {
-	// 	selectedTimelineTrackItemIdStore
-		
-	// }
-
+	const dispatch = createEventDispatcher();
 
 	function getCaretPosition() {
 		if (window.getSelection && window.getSelection().getRangeAt) {
@@ -34,7 +26,7 @@
 
 	const splitText = async (e, lyricId) => {
 		await tick();
-    const text = e.srcElement.innerText;
+		const text = e.srcElement.innerText;
 		const selectedLyric = $lyricStore.find(({ id }) => id === lyricId);
 		const selectedLyricIndex = $lyricStore.findIndex(({ id }) => id === lyricId);
 		const splitAt = getCaretPosition();
@@ -43,14 +35,14 @@
 		const halfLength = (selectedLyric.end - selectedLyric.start) / 2;
 		const newEnd = selectedLyric.end - halfLength;
 		const newStart = selectedLyric.start + halfLength;
-    lyricStore.updateById({
+		lyricStore.updateById({
 			id: lyricId,
 			updates: {
 				text: p1,
 				end: newEnd
 			}
 		});
-    const newId = $lyricStore.length;
+		const newId = $lyricStore.length;
 		lyricStore.addLyricAtIndex({
 			index: selectedLyricIndex + 1,
 			newLyric: {
@@ -60,7 +52,7 @@
 				end: selectedLyric.end
 			}
 		});
-    dispatch('lyricSplit', { originalLyricId: lyricId, newLyricId: newId })
+		dispatch('lyricSplit', { originalLyricId: lyricId, newLyricId: newId });
 	};
 
 	const onKeyDown = (e, id) => {
@@ -71,27 +63,32 @@
 	};
 </script>
 
-<div class="lyric-editor" bind:this={lyricEditor}>
-	{#each $lyricStore as lryic}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div
-			class="lyric-editor__text"
-			class:selected={$selectedTimelineTrackItemIdStore === lryic.id}
-			contenteditable="true"
-			on:keydown={(e) => onKeyDown(e, lryic.id)}
-		>
-			{lryic.text}
-		</div>
-	{/each}
+<div class="lyric-editor">
+	{#if !$lyricStore.length}
+		No lyrics to edit. Add some to the timeline below.
+	{/if}
+	{#if $lyricStore.length}
+		{#each $lyricStore as lryic}
+			<!-- svelte-ignore a11y-no-static-element-interactions -->
+			<div
+				class="lyric-editor__text"
+				class:selected={$selectedTimelineTrackItemIdStore === lryic.id}
+				contenteditable="true"
+				on:keydown={(e) => onKeyDown(e, lryic.id)}
+			>
+				{lryic.text}
+			</div>
+		{/each}
+	{/if}
 </div>
 
 <style>
 	.lyric-editor {
-    color: #fff;
-    padding: 10px;
-    flex: 1;
-    overflow: auto;
-  }
+		color: #fff;
+		padding: 10px;
+		flex: 1;
+		overflow: auto;
+	}
 	.lyric-editor__text {
 		padding: 10px;
 		color: #a6a6a6;

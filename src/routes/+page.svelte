@@ -10,16 +10,17 @@
 	import AspectRatioContainer from '../lib/components/AspectRatioContainer.svelte';
 	import LyricEditor from '../lib/components/LyricEditor.svelte';
 	import Tabs from '../lib/components/Tabs.svelte';
+	import BulkLyricInput from '../lib/components/BulkLyricInput.svelte';
 
 	// $lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
-	
+
 	let exportWorker;
 	let canvasElement;
 	let currentTime;
 	let cursorX = 0;
 	let lyricAninmations;
 	let length;
-	
+
 	$: {
 		if (tl.isActive()) {
 			break $;
@@ -27,10 +28,13 @@
 		tl.seek(cursorX);
 	}
 
+	let selectedElementEditorSectionTab = 'lyrics';
 	const elementEditorSectionTabs = [
+		{ key: 'upload', label: 'Upload' },
 		{ key: 'lyrics', label: 'Lyrics' },
-		{ key: 'style', label: 'Style' },
+		{ key: 'style', label: 'Style' }
 	];
+
 	const tl = gsap.timeline();
 	const removeLastAnimationTimestamps = [];
 	const fps = 24;
@@ -41,6 +45,18 @@
 		y: height / 2
 	};
 	let app;
+
+	const setLength = () => {
+		const duration = tl.duration();
+		length = duration > 60 ? duration : 60;
+	};
+
+	const resetAllAnimations = () => {
+		while (app.stage.children?.[0]) {
+			app.stage.removeChild(app.stage.children?.[0]);
+		}
+		tl.clear();
+	};
 
 	const setLyricAnimations = () => {
 		lyricAninmations = $lyricStore.map(({ id, start, end, text }) => {
@@ -86,6 +102,7 @@
 				line.end
 			);
 		});
+		setLength();
 	};
 
 	onMount(async () => {
@@ -117,8 +134,6 @@
 
 			setLyricAnimations();
 			addAllAnimationsToTimeline();
-			const duration = tl.duration();
-			length = duration > 0 ? duration : undefined;
 			// tl.resume();
 		}
 	});
@@ -205,6 +220,7 @@
 			}
 			return newLyricAnimation;
 		});
+		setLength();
 	};
 
 	const onLyricSplit = ({ detail }) => {
@@ -223,13 +239,33 @@
 	};
 	const onPlay = () => tl.resume();
 	const onPause = () => tl.pause();
+	const onTabClick = ({ detail }) => {
+		selectedElementEditorSectionTab = detail;
+	};
+	const onTextAreaInput = () => {
+		resetAllAnimations();
+		setLyricAnimations();
+		addAllAnimationsToTimeline();
+	};
 </script>
 
 <div class="editor">
-	<div class="editor__sidebar">test</div>
+	<div class="editor__sidebar" />
 	<div class="editor__element-edit-section">
-		<!-- <Tabs tabs={elementEditorSectionTabs} /> -->
-		<LyricEditor on:lyricSplit={onLyricSplit} />
+		<Tabs
+			tabs={elementEditorSectionTabs}
+			selectedKey={selectedElementEditorSectionTab}
+			on:onTabClick={onTabClick}
+		/>
+		{#if selectedElementEditorSectionTab === 'upload'}
+			<BulkLyricInput on:textAreaInput={onTextAreaInput} />
+		{/if}
+		{#if selectedElementEditorSectionTab === 'lyrics'}
+			<LyricEditor on:lyricSplit={onLyricSplit} />
+		{/if}
+		{#if selectedElementEditorSectionTab === 'style'}
+			<LyricEditor on:lyricSplit={onLyricSplit} />
+		{/if}
 	</div>
 	<div class="editor__element-preview-section">
 		<AspectRatioContainer>
@@ -266,11 +302,11 @@
 			z-index: 2;
 			position: relative;
 		}
-	
+
 		&.app-timeline-trackpad::-webkit-scrollbar-corner {
 			background-color: #202024;
 		}
-	
+
 		&::-webkit-scrollbar-thumb {
 			border-radius: 10px;
 			border: 7px solid #202024;
@@ -291,11 +327,12 @@
 
 	.editor__sidebar {
 		grid-area: 1 / 1 / 5 / 2;
+		color: #fff;
 	}
 	.editor__element-edit-section {
 		grid-area: 1 / 2 / 5 / 3;
 		display: flex;
-    flex-direction: column;
+		flex-direction: column;
 	}
 	.editor__element-preview-section {
 		grid-area: 1 / 3 / 5 / 6;

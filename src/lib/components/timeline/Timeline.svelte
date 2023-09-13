@@ -1,5 +1,5 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 	import { lyricStore } from '../../stores/lyricStore';
 	import TimelineCursor from './TimelineCursor.svelte';
 	import TimelineMarkers from './TimelineMarkers.svelte';
@@ -19,8 +19,17 @@
 	let scale = 60;
 	let timelineTracksContainer;
 
+	let cursorHeight;
 	const cursorOffsetHeight = 52;
-	$: cursorHeight = timelineTracksContainer?.offsetHeight + cursorOffsetHeight || 0;
+
+	const setCursorHeight = async () => {
+		await tick();
+		cursorHeight = timelineTracksContainer?.offsetHeight + cursorOffsetHeight || 0
+	}
+	$: {
+		$lyricStore.length;
+		setCursorHeight();
+	};
 
 	const onZoom = ({ detail }) => {
 		if (detail === 'in') {
