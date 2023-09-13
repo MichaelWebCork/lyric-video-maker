@@ -1,5 +1,5 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { lyricStore } from '../stores/lyricStore';
 	import Dropzone from './Dropzone.svelte';
 
@@ -7,7 +7,7 @@
 
 	let lyrics;
 
-	$: {
+	const setLyrics = () => {
 		const splitLyrics = lyrics?.split(/\r?\n|\r|\n/g);
 		const lyricsWithStarAndEndTime = splitLyrics?.filter((lyric) => lyric.length)?.map(
 			(lyric, index) => ({
@@ -19,18 +19,19 @@
 		);
 		if (!lyricsWithStarAndEndTime?.length) {
 			$lyricStore = [];
-			break $;
+			return;
 		}
 		$lyricStore = lyricsWithStarAndEndTime;
-		onTextAreaInput();
 	}
 
 	const onTextAreaInput = () => {
+		setLyrics();
 		dispatch('textAreaInput');
 	};
 
 	const onReadFile = ({detail}) => {
 		lyrics = detail;
+		setLyrics();
 	}
 </script>
 

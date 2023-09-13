@@ -12,7 +12,7 @@
 	import Tabs from '../lib/components/Tabs.svelte';
 	import BulkLyricInput from '../lib/components/BulkLyricInput.svelte';
 
-	// $lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
+	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
 
 	let exportWorker;
 	let canvasElement;
