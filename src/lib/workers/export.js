@@ -91,6 +91,11 @@ const renderVideo = async (data) => {
       width,
       height,
       frameRate: fps
+    },
+    audio: {
+			codec: 'A_OPUS',
+			sampleRate: data.audioInfo.sampleRate,
+			numberOfChannels: 2
     }
   });
 
@@ -109,6 +114,29 @@ const renderVideo = async (data) => {
     bitrateMode: 'constant'
   });
 
+  // return;
+  let audioData = new AudioData({
+    format: 'f32-planar',
+    sampleRate: data.audioInfo.sampleRate,
+    numberOfChannels: data.audioInfo.numberOfChannels,
+    numberOfFrames: data.audioInfo.numberOfFrames,
+    timestamp: 0,
+    data: data.audio
+  });
+  
+  const audioEncoder = new AudioEncoder({
+    output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+    error: (e) => console.log(e)
+  });
+  audioEncoder.configure({
+    codec: 'opus',
+    numberOfChannels: 2,
+    sampleRate: data.audioInfo.sampleRate
+  });
+
+  audioEncoder.encode(audioData);
+  
+  // return;
   const encodeFrame = async (videoFrame) => {
     const keyFrame = currentTimeStamp % 60 === 0;
     videoEncoder.encode(videoFrame, { keyFrame });

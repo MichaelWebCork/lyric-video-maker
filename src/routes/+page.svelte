@@ -11,6 +11,7 @@
 	import LyricEditor from '../lib/components/LyricEditor.svelte';
 	import Tabs from '../lib/components/Tabs.svelte';
 	import BulkLyricInput from '../lib/components/BulkLyricInput.svelte';
+	import Dropzone from '../lib/components/Dropzone.svelte';
 
 	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
 
@@ -20,6 +21,12 @@
 	let cursorX = 0;
 	let lyricAninmations;
 	let length;
+	let soundBuffer;
+	let sampleBuffer;
+	let audioL;
+	let audioR;
+	let audio;
+	let audioInfo;
 
 	$: {
 		if (tl.isActive()) {
@@ -154,7 +161,9 @@
 		exportWorker.postMessage({
 			width: 1920,
 			height: 1080,
-			lyrics: $lyricStore
+			lyrics: $lyricStore,
+			audio,
+			audioInfo
 		});
 
 		exportWorker.onmessage = async (event) => {
@@ -247,6 +256,96 @@
 		setLyricAnimations();
 		addAllAnimationsToTimeline();
 	};
+
+	// let source = null;
+
+	function obtainMp3BytesInArrayBufferUsingFileAPI(selectedFile, callback) {
+		const reader = new FileReader();
+		reader.onload = function (ev) {
+			// The FileReader returns us the bytes from the computer's file system as an ArrayBuffer
+			var mp3BytesAsArrayBuffer = reader.result;
+			callback(mp3BytesAsArrayBuffer);
+		};
+		reader.readAsArrayBuffer(selectedFile);
+	}
+
+	function decodeMp3BytesFromArrayBufferAndPlay(mp3BytesAsArrayBuffer) {
+		const audioContext = new AudioContext();
+		audioContext.decodeAudioData(mp3BytesAsArrayBuffer, (decodedSamplesAsAudioBuffer) => {
+			// if (source !== null) {
+			// 	source.disconnect(audioContext.destination);
+			// 	source = null; // Leave existing source to garbage collection
+			// }
+			// source = audioContext.createBufferSource();
+			// source.buffer = decodedSamplesAsAudioBuffer; // set the buffer to play to our audio buffer
+			// for (let channel = 0; channel < decodedSamplesAsAudioBuffer.numberOfChannels; channel++) {
+			// 	// This gives us the actual ArrayBuffer that contains the data
+			// 	const nowBuffering = decodedSamplesAsAudioBuffer.getChannelData(channel);
+			// 	console.log(nowBuffering);
+			// 	let audioData = new AudioData({
+			// 		format: 'f32-planar',
+			// 		sampleRate: decodedSamplesAsAudioBuffer.sampleRate,
+			// 		numberOfChannels: decodedSamplesAsAudioBuffer.numberOfChannels,
+			// 		numberOfFrames: decodedSamplesAsAudioBuffer.length / 2,
+			// 		timestamp: 0,
+			// 		data: nowBuffering
+			// 	});
+
+			// 	const audioEncoder = new AudioEncoder({
+			// 		output: (chunk, meta) => console.log(chunk, meta),
+			// 		error: (e) => console.log(e)
+			// 	});
+
+			// 	audioEncoder.configure({
+			// 		codec: 'opus',
+			// 		numberOfChannels: 2,
+			// 		sampleRate: decodedSamplesAsAudioBuffer.sampleRate
+			// 	});
+
+			// 	audioEncoder.encode(audioData);
+			// }
+			console.log(decodedSamplesAsAudioBuffer)
+			audioInfo = {
+				sampleRate: decodedSamplesAsAudioBuffer.sampleRate,
+				numberOfChannels: decodedSamplesAsAudioBuffer.numberOfChannels,
+				numberOfFrames: decodedSamplesAsAudioBuffer.length
+			};
+			audioL = decodedSamplesAsAudioBuffer.getChannelData(0);
+			audioR = decodedSamplesAsAudioBuffer.getChannelData(1);
+			const arr = new Float32Array(audioL.length + audioR.length);
+			arr.set(audioL);
+			arr.set(audioR);
+			audio = arr;
+			// let audioData = new AudioData({
+			// 	format: 'f32-planar',
+			// 	sampleRate: audioInfo.sampleRate,
+			// 	numberOfChannels: audioInfo.numberOfChannels,
+			// 	numberOfFrames: audioInfo.numberOfFrames,
+			// 	timestamp: 0,
+			// 	data: audio
+			// });
+
+			// const audioEncoder = new AudioEncoder({
+			// 	output: (chunk, meta) => console.log(chunk, meta),
+			// 	error: (e) => console.log(e)
+			// });
+			// audioEncoder.configure({
+			// 	codec: 'opus',
+			// 	numberOfChannels: 2,
+			// 	sampleRate: decodedSamplesAsAudioBuffer.sampleRate
+			// });
+
+			// audioEncoder.encode(audioData);
+		});
+	}
+
+	const readAudioFile = async ({ detail }) => {
+		console.log(detail)
+		obtainMp3BytesInArrayBufferUsingFileAPI(detail, (mp3BytesAsArrayBuffer) => {
+			// Pass the ArrayBuffer to the decode method
+			decodeMp3BytesFromArrayBufferAndPlay(mp3BytesAsArrayBuffer);
+		});
+	};
 </script>
 
 <div class="editor">
@@ -258,6 +357,7 @@
 			on:onTabClick={onTabClick}
 		/>
 		{#if selectedElementEditorSectionTab === 'upload'}
+			<Dropzone dontRead={true} on:readFile={readAudioFile} />
 			<BulkLyricInput on:textAreaInput={onTextAreaInput} />
 		{/if}
 		{#if selectedElementEditorSectionTab === 'lyrics'}
