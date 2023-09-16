@@ -154,7 +154,7 @@ const renderVideo = async (data) => {
   // const totalFrameNumber = fps * tl.duration();
   const stepBy = 1 / (fps * tl.duration());
   for (let t = 0; t <= 1; t += stepBy) {
-    currentTimeStamp = (currentFrameNumber / 30) * 1000000;
+    currentTimeStamp = (currentFrameNumber / fps) * 1000000;
     tl.progress(t);
 
     const lastAnimationEndFrame = removeLastAnimationTimestamps[0];
