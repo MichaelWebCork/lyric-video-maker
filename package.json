@@ -26,6 +26,7 @@
 		"gsap": "^3.12.2",
 		"pixi.js": "^7.2.4",
 		"svelte-file-dropzone": "^2.0.2",
+		"wavesurfer.js": "^7.3.2",
 		"webm-muxer": "^3.1.2"
 	}
 }

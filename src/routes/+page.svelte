@@ -27,6 +27,8 @@
 	let audioR;
 	let audio;
 	let audioInfo;
+	let audioFileAsUrl;
+	let audioFileLength;
 
 	$: {
 		if (tl.isActive()) {
@@ -272,77 +274,51 @@
 	function decodeMp3BytesFromArrayBufferAndPlay(mp3BytesAsArrayBuffer) {
 		const audioContext = new AudioContext();
 		audioContext.decodeAudioData(mp3BytesAsArrayBuffer, (decodedSamplesAsAudioBuffer) => {
-			// if (source !== null) {
-			// 	source.disconnect(audioContext.destination);
-			// 	source = null; // Leave existing source to garbage collection
-			// }
-			// source = audioContext.createBufferSource();
-			// source.buffer = decodedSamplesAsAudioBuffer; // set the buffer to play to our audio buffer
-			// for (let channel = 0; channel < decodedSamplesAsAudioBuffer.numberOfChannels; channel++) {
-			// 	// This gives us the actual ArrayBuffer that contains the data
-			// 	const nowBuffering = decodedSamplesAsAudioBuffer.getChannelData(channel);
-			// 	console.log(nowBuffering);
-			// 	let audioData = new AudioData({
-			// 		format: 'f32-planar',
-			// 		sampleRate: decodedSamplesAsAudioBuffer.sampleRate,
-			// 		numberOfChannels: decodedSamplesAsAudioBuffer.numberOfChannels,
-			// 		numberOfFrames: decodedSamplesAsAudioBuffer.length / 2,
-			// 		timestamp: 0,
-			// 		data: nowBuffering
-			// 	});
-
-			// 	const audioEncoder = new AudioEncoder({
-			// 		output: (chunk, meta) => console.log(chunk, meta),
-			// 		error: (e) => console.log(e)
-			// 	});
-
-			// 	audioEncoder.configure({
-			// 		codec: 'opus',
-			// 		numberOfChannels: 2,
-			// 		sampleRate: decodedSamplesAsAudioBuffer.sampleRate
-			// 	});
-
-			// 	audioEncoder.encode(audioData);
-			// }
-			console.log(decodedSamplesAsAudioBuffer)
 			audioInfo = {
 				sampleRate: decodedSamplesAsAudioBuffer.sampleRate,
 				numberOfChannels: decodedSamplesAsAudioBuffer.numberOfChannels,
 				numberOfFrames: decodedSamplesAsAudioBuffer.length
 			};
+			audioFileLength = decodedSamplesAsAudioBuffer.duration;
 			audioL = decodedSamplesAsAudioBuffer.getChannelData(0);
 			audioR = decodedSamplesAsAudioBuffer.getChannelData(1);
 			const arr = new Float32Array(audioL.length + audioR.length);
 			arr.set(audioL);
 			arr.set(audioR);
 			audio = arr;
-			// let audioData = new AudioData({
-			// 	format: 'f32-planar',
-			// 	sampleRate: audioInfo.sampleRate,
-			// 	numberOfChannels: audioInfo.numberOfChannels,
-			// 	numberOfFrames: audioInfo.numberOfFrames,
-			// 	timestamp: 0,
-			// 	data: audio
-			// });
+		});
+	}
 
-			// const audioEncoder = new AudioEncoder({
-			// 	output: (chunk, meta) => console.log(chunk, meta),
-			// 	error: (e) => console.log(e)
-			// });
-			// audioEncoder.configure({
-			// 	codec: 'opus',
-			// 	numberOfChannels: 2,
-			// 	sampleRate: decodedSamplesAsAudioBuffer.sampleRate
-			// });
-
-			// audioEncoder.encode(audioData);
+	async function readFile(file, readAs) {
+		return new Promise((resolve, reject) => {
+			let fileReader = new FileReader();
+			fileReader.onload = function () {
+				return resolve({
+					data: fileReader.result,
+					name: file.name,
+					size: file.size,
+					type: file.type
+				});
+			};
+			if (readAs === 'buffer') {
+				fileReader.readAsArrayBuffer(file);
+				return;
+			}
+			if (readAs === 'binary') {
+				fileReader.readAsBinaryString(file);
+				return;
+			}
+			if (readAs === 'url') {
+				fileReader.readAsDataURL(file);
+				return;
+			}
+			fileReader.readAsText(file);
 		});
 	}
 
 	const readAudioFile = async ({ detail }) => {
-		console.log(detail)
+		audioFileAsUrl = await readFile(detail, 'url');
 		obtainMp3BytesInArrayBufferUsingFileAPI(detail, (mp3BytesAsArrayBuffer) => {
-			// Pass the ArrayBuffer to the decode method
 			decodeMp3BytesFromArrayBufferAndPlay(mp3BytesAsArrayBuffer);
 		});
 	};
@@ -381,6 +357,8 @@
 	<div class="editor__element-timeline-section">
 		<Timeline
 			{length}
+			{audioFileAsUrl}
+			{audioFileLength}
 			bind:cursorX
 			on:cursorMove={onCursorMove}
 			on:timelineUpdate={({ detail }) => updateAnimationById(detail.id)}

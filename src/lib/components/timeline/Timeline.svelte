@@ -1,5 +1,7 @@
 <script>
-	import { createEventDispatcher, tick } from 'svelte';
+	import WaveSurfer from 'wavesurfer.js';
+	import { browser } from '$app/environment';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 	import { lyricStore } from '../../stores/lyricStore';
 	import TimelineCursor from './TimelineCursor.svelte';
 	import TimelineMarkers from './TimelineMarkers.svelte';
@@ -8,6 +10,8 @@
 
 	export let length = 60;
 	export let cursorX = 0;
+	export let audioFileAsUrl;
+	export let audioFileLength;
 
 	const dispatch = createEventDispatcher();
 	const initialScalse = 60;
@@ -22,14 +26,37 @@
 	let cursorHeight;
 	const cursorOffsetHeight = 52;
 
+	let waveformContainer;
+	let wavesurfer;
+	
+	onMount(() => {
+		wavesurfer = WaveSurfer.create({
+			container: waveformContainer,
+			waveColor: '#ffffff99',
+			progressColor: '#383351',
+			interact: false,
+			cursorWidth: 0,
+			fillParent: true,
+		});
+	});
+
+	$: {
+		if (!browser || !audioFileAsUrl) { break $; }
+		wavesurfer.load(audioFileAsUrl.data);
+	}
+
+	$: waveformContainerWidth = audioFileLength * scale;
+
+	$: console.log(waveformContainerWidth)
+
 	const setCursorHeight = async () => {
 		await tick();
-		cursorHeight = timelineTracksContainer?.offsetHeight + cursorOffsetHeight || 0
-	}
+		cursorHeight = timelineTracksContainer?.offsetHeight + cursorOffsetHeight || 0;
+	};
 	$: {
 		$lyricStore.length;
 		setCursorHeight();
-	};
+	}
 
 	const onZoom = ({ detail }) => {
 		if (detail === 'in') {
@@ -56,15 +83,22 @@
 		cursorX = detail / scale;
 	};
 	const onscroll = (e) => {
-		cursorTimeYPosition =  e.srcElement.scrollTop + cursorTimeYPositionOffset;
+		cursorTimeYPosition = e.srcElement.scrollTop + cursorTimeYPositionOffset;
 	};
 </script>
 
 <div class="timeline">
 	<TimelineToolbar on:zoom={onZoom} on:resetZoom={onResetZoom} />
 	<div class="timeline__scroll-container" on:scroll={onscroll}>
-		<TimelineCursor {scale} height={cursorHeight} yPosition={cursorTimeYPosition} bind:x={cursorX} on:cursorMove={onCursorMove} />
+		<TimelineCursor
+			{scale}
+			height={cursorHeight}
+			yPosition={cursorTimeYPosition}
+			bind:x={cursorX}
+			on:cursorMove={onCursorMove}
+		/>
 		<TimelineMarkers {scale} {length} on:rulerClick={onRulerClick} />
+		<div class="timeline__waveform-container" style="width: {waveformContainerWidth}px" bind:this={waveformContainer} />
 		<div bind:this={timelineTracksContainer}>
 			{#if $lyricStore.length}
 				<TimelineTracks
@@ -102,5 +136,10 @@
 
 	.timeline__scroll-container > :global(.timeline-tracks) {
 		margin-top: 30px;
+	}
+
+	.timeline__waveform-container {
+		flex: 1;
+		z-index: 0;
 	}
 </style>
