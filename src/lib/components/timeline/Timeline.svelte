@@ -1,7 +1,7 @@
 <script>
 	import WaveSurfer from 'wavesurfer.js';
 	import { browser } from '$app/environment';
-	import { createEventDispatcher, onMount, tick } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 	import { lyricStore } from '../../stores/lyricStore';
 	import TimelineCursor from './TimelineCursor.svelte';
 	import TimelineMarkers from './TimelineMarkers.svelte';
@@ -28,8 +28,9 @@
 
 	let waveformContainer;
 	let wavesurfer;
-	
-	onMount(() => {
+
+	$: {
+		if (!browser || !audioFileAsUrl) { break $; }
 		wavesurfer = WaveSurfer.create({
 			container: waveformContainer,
 			waveColor: '#ffffff99',
@@ -38,10 +39,6 @@
 			cursorWidth: 0,
 			fillParent: true,
 		});
-	});
-
-	$: {
-		if (!browser || !audioFileAsUrl) { break $; }
 		wavesurfer.load(audioFileAsUrl.data);
 	}
 
@@ -126,7 +123,7 @@
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		padding: 20px 20px 0;
+		padding: 0 20px;
 	}
 
 	.timeline__scroll-container > :global(.timeline-ruler) {
@@ -140,6 +137,9 @@
 
 	.timeline__waveform-container {
 		flex: 1;
-		z-index: 0;
+		z-index: 1;
+		position: sticky;
+    top: 32px;
+		background: #202024;
 	}
 </style>

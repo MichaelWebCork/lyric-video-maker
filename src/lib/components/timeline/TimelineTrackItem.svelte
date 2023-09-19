@@ -128,7 +128,6 @@
 	}
 
 	.timeline-track-item-handle {
-		z-index: 1;
 		height: 100%;
 		width: 4px;
 		flex-shrink: 0;

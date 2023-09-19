@@ -1,13 +1,13 @@
 <script>
-	import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher } from 'svelte';
 
 	export let length;
 	export let scale;
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	$: divideAmmountBy = 60 / scale;
-	$: console.log(length)
+	$: console.log(length);
 	$: amount = Math.ceil((length + 10) / divideAmmountBy);
 
 	let percision = 16;
@@ -27,9 +27,9 @@
 	};
 
 	const onRulerMarkerClick = (e) => {
-    const newPosition = e.offsetX + e.srcElement.offsetLeft
-    dispatch('rulerClick', newPosition);
-  };
+		const newPosition = e.offsetX + e.srcElement.offsetLeft;
+		dispatch('rulerClick', newPosition);
+	};
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -52,6 +52,7 @@
 		display: flex;
 		position: fixed;
 		cursor: pointer;
+		z-index: 1;
 	}
 
 	.timeline-ruler__marker {
@@ -61,7 +62,8 @@
 		align-items: flex-start;
 		flex-direction: column;
 		padding-bottom: 5px;
-		z-index: 9;
+		z-index: 1;
+		background: #202024;
 	}
 
 	.timeline-ruler__marker-line {
@@ -70,7 +72,7 @@
 		width: 1px;
 		height: 8px;
 		background: rgba(255, 255, 255, 0.6);
-    pointer-events: none;
+		pointer-events: none;
 	}
 
 	.timeline-ruler__marker-time {
@@ -81,6 +83,6 @@
 		line-height: 1.5;
 		color: rgba(255, 255, 255, 0.6);
 		font-size: 12px;
-    pointer-events: none;
+		pointer-events: none;
 	}
 </style>
