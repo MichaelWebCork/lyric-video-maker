@@ -2,7 +2,10 @@
 	import WaveSurfer from 'wavesurfer.js';
 	import { browser } from '$app/environment';
 	import { createEventDispatcher, tick } from 'svelte';
-	import { lyricStore } from '../../stores/lyricStore';
+	import { lyricStore } from '$lib/stores/lyricStore';
+	import { waveSurfer, waveSurferProgress } from '$lib/stores/waveSurferStore';
+	import { tl } from '$lib/stores/gsapTimeLineStore';
+	import { shouldTimelineFollowCursor } from '$lib/stores/videoControlStore';
 	import TimelineCursor from './TimelineCursor.svelte';
 	import TimelineMarkers from './TimelineMarkers.svelte';
 	import TimelineToolbar from './TimelineToolbar.svelte';
@@ -18,41 +21,62 @@
 	const maxZoomIn = 60 * 2;
 	const maxZoomOut = 60 / 4;
 	const cursorTimeYPositionOffset = 100;
-	let cursorTimeYPosition = cursorTimeYPositionOffset;
+	const audioTrackHeight = 60;
 
+	let cursorTimeYPosition = cursorTimeYPositionOffset;
 	let scale = 60;
+	let timelineScrollContainer;
 	let timelineTracksContainer;
 
 	let cursorHeight;
 	const cursorOffsetHeight = 52;
 
+	
 	let waveformContainer;
-	let wavesurfer;
-
-	$: {
-		if (!browser || !audioFileAsUrl) { break $; }
-		wavesurfer = WaveSurfer.create({
+	let unsubscribeFromWaveSurferListener;
+	const setWaveSurfer = async () => {
+		unsubscribeFromWaveSurferListener?.();
+		$waveSurfer = WaveSurfer.create({
 			container: waveformContainer,
 			waveColor: '#ffffff99',
 			progressColor: '#383351',
 			interact: false,
 			cursorWidth: 0,
 			fillParent: true,
+			height: audioTrackHeight,
 		});
-		wavesurfer.load(audioFileAsUrl.data);
+		await $waveSurfer.load(audioFileAsUrl.data);
+		$waveSurfer.setTime($tl.time());
+		unsubscribeFromWaveSurferListener = $waveSurfer?.on('audioprocess', () => {
+			$waveSurferProgress = $waveSurfer.getCurrentTime()
+		});
+	}
+
+	$: {
+		if (!browser || !audioFileAsUrl) { break $; }
+		setWaveSurfer();
 	}
 
 	$: waveformContainerWidth = audioFileLength * scale;
-
-	$: console.log(waveformContainerWidth)
 
 	const setCursorHeight = async () => {
 		await tick();
 		cursorHeight = timelineTracksContainer?.offsetHeight + cursorOffsetHeight || 0;
 	};
+
 	$: {
 		$lyricStore.length;
 		setCursorHeight();
+	}
+
+	$: {
+		if (!$shouldTimelineFollowCursor) { break $; }
+		const currentPos = cursorX * scale;
+		if (currentPos < timelineScrollContainer?.offsetWidth / 2) { 
+			timelineScrollContainer?.scrollTo(0, timelineScrollContainer?.scrollTop || 0)
+			break $;
+		}
+		timelineScrollContainer?.scrollTo(currentPos - (timelineScrollContainer?.offsetWidth / 2) || 0, timelineScrollContainer?.scrollTop || 0)
 	}
 
 	const onZoom = ({ detail }) => {
@@ -78,6 +102,7 @@
 	};
 	const onRulerClick = ({ detail }) => {
 		cursorX = detail / scale;
+		dispatch('cursorMove', detail);
 	};
 	const onscroll = (e) => {
 		cursorTimeYPosition = e.srcElement.scrollTop + cursorTimeYPositionOffset;
@@ -86,7 +111,7 @@
 
 <div class="timeline">
 	<TimelineToolbar on:zoom={onZoom} on:resetZoom={onResetZoom} />
-	<div class="timeline__scroll-container" on:scroll={onscroll}>
+	<div class="timeline__scroll-container" bind:this={timelineScrollContainer} on:scroll={onscroll}>
 		<TimelineCursor
 			{scale}
 			height={cursorHeight}

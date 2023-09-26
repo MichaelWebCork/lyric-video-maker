@@ -4,14 +4,17 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import exportWebWorker from '$lib/workers/export?worker';
-	import Timeline from '../lib/components/timeline/Timeline.svelte';
+	import Timeline from '$lib/components/timeline/Timeline.svelte';
 	import { lyrics } from '$lib/lyrics.json';
-	import { lyricStore } from '../lib/stores/lyricStore';
-	import AspectRatioContainer from '../lib/components/AspectRatioContainer.svelte';
-	import LyricEditor from '../lib/components/LyricEditor.svelte';
-	import Tabs from '../lib/components/Tabs.svelte';
-	import BulkLyricInput from '../lib/components/BulkLyricInput.svelte';
-	import Dropzone from '../lib/components/Dropzone.svelte';
+	import { lyricStore } from '$lib/stores/lyricStore';
+	import { shouldTimelineFollowCursor } from '$lib/stores/videoControlStore';
+	import { waveSurfer, waveSurferProgress } from '$lib/stores/waveSurferStore';
+	import { tl } from '$lib/stores/gsapTimeLineStore';
+	import AspectRatioContainer from '$lib/components/AspectRatioContainer.svelte';
+	import LyricEditor from '$lib/components/LyricEditor.svelte';
+	import Tabs from '$lib/components/Tabs.svelte';
+	import BulkLyricInput from '$lib/components/BulkLyricInput.svelte';
+	import Dropzone from '$lib/components/Dropzone.svelte';
 
 	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
 
@@ -21,8 +24,6 @@
 	let cursorX = 0;
 	let lyricAninmations;
 	let length;
-	let soundBuffer;
-	let sampleBuffer;
 	let audioL;
 	let audioR;
 	let audio;
@@ -31,10 +32,15 @@
 	let audioFileLength;
 
 	$: {
-		if (tl.isActive()) {
+		if ($tl.isActive()) {
 			break $;
 		}
-		tl.seek(cursorX);
+		$tl.seek(cursorX);
+		if (cursorX <= $waveSurfer?.getDuration()) {
+			$waveSurfer?.setTime(cursorX);
+			break $;
+		}
+		$waveSurfer?.setTime($waveSurfer?.getDuration());
 	}
 
 	let selectedElementEditorSectionTab = 'lyrics';
@@ -44,7 +50,7 @@
 		{ key: 'style', label: 'Style' }
 	];
 
-	const tl = gsap.timeline();
+	$tl = gsap.timeline();
 	const removeLastAnimationTimestamps = [];
 	const fps = 24;
 	const width = 1920;
@@ -56,7 +62,7 @@
 	let app;
 
 	const setLength = () => {
-		const duration = tl.duration();
+		const duration = $tl.duration();
 		length = duration > 60 ? duration : 60;
 	};
 
@@ -64,7 +70,7 @@
 		while (app.stage.children?.[0]) {
 			app.stage.removeChild(app.stage.children?.[0]);
 		}
-		tl.clear();
+		$tl.clear();
 	};
 
 	const setLyricAnimations = () => {
@@ -88,7 +94,7 @@
 			currentLine.y = centerCordinates.y + 100;
 			currentLine.alpha = 0;
 			app.stage.addChild(currentLine);
-			tl.to(
+			$tl.to(
 				currentLine,
 				{
 					x: currentLine.x,
@@ -100,7 +106,7 @@
 				},
 				line.start
 			);
-			tl.to(
+			$tl.to(
 				currentLine,
 				{
 					duration: 0,
@@ -126,16 +132,16 @@
 			});
 
 			// Create a gsap timeline
-			tl.pause();
-			tl.seek(0);
+			$tl.pause();
+			$tl.seek(0);
 
 			// sync pixi and gsap
 			app.ticker.stop();
 			gsap.ticker.fps(fps);
 			let previousTime = 0;
 			gsap.ticker.add(() => {
-				currentTime = tl.time();
-				if (tl.isActive() && currentTime !== previousTime) {
+				currentTime = $waveSurfer ? $waveSurferProgress : $tl.time();
+				if ($tl.isActive() && currentTime !== previousTime) {
 					cursorX = currentTime;
 				}
 				app.ticker.update();
@@ -143,7 +149,7 @@
 
 			setLyricAnimations();
 			addAllAnimationsToTimeline();
-			// tl.resume();
+			// $tl.resume();
 		}
 	});
 
@@ -188,7 +194,7 @@
 		const animation = lyricAninmations.find(findById);
 		if (animation) {
 			app.stage.removeChild(animation.text);
-			tl.remove(animation.text);
+			$tl.remove(animation.text);
 		}
 		const { id: storeId, start, end, text } = $lyricStore.find(findById);
 		const pixiText = new PIXI.Text(text);
@@ -203,7 +209,7 @@
 		newLyricAnimation.text.y = centerCordinates.y + 100;
 		newLyricAnimation.text.alpha = 0;
 		app.stage.addChild(newLyricAnimation.text);
-		tl.to(
+		$tl.to(
 			newLyricAnimation.text,
 			{
 				x: newLyricAnimation.text.x,
@@ -215,7 +221,7 @@
 			},
 			newLyricAnimation.start
 		);
-		tl.to(
+		$tl.to(
 			newLyricAnimation.text,
 			{
 				duration: 0,
@@ -241,15 +247,22 @@
 	};
 
 	const onCursorMove = () => {
-		tl.pause();
+		$waveSurfer?.setTime(cursorX);
+		$tl.seek(cursorX);
 	};
 
 	const onBackToStart = () => {
-		tl.seek(0);
-		tl.resume();
+		$tl.seek(0);
+		$tl.resume();
 	};
-	const onPlay = () => tl.resume();
-	const onPause = () => tl.pause();
+	const onPlay = async () => {
+		await $waveSurfer?.play();
+		$tl.resume();
+	};
+	const onPause = () => {
+		$waveSurfer?.pause();
+		$tl.pause();
+	};
 	const onTabClick = ({ detail }) => {
 		selectedElementEditorSectionTab = detail;
 	};
@@ -258,8 +271,6 @@
 		setLyricAnimations();
 		addAllAnimationsToTimeline();
 	};
-
-	// let source = null;
 
 	function obtainMp3BytesInArrayBufferUsingFileAPI(selectedFile, callback) {
 		const reader = new FileReader();
@@ -322,8 +333,39 @@
 			decodeMp3BytesFromArrayBufferAndPlay(mp3BytesAsArrayBuffer);
 		});
 	};
+
+	const onFollowCursor = () => {
+		$shouldTimelineFollowCursor = !$shouldTimelineFollowCursor;
+	};
+
+	const onTimeLineKeyDown = (e) => {
+		const isBody = e.srcElement.nodeName === 'BODY';
+		const isButton = e.srcElement.nodeName === 'BUTTON';
+		if (!isBody && !isButton) {
+			return;
+		}
+		e.preventDefault();
+		switch (e.keyCode) {
+			case 32: // space key
+				const isPlaying = $tl.isActive();
+				if (isPlaying) {
+					onPause();
+					return;
+				}
+				onPlay();
+				break;
+
+			case 70: // F key
+				onFollowCursor();
+				break;
+
+			default:
+				break;
+		}
+	};
 </script>
 
+<svelte:window on:keydown={onTimeLineKeyDown} />
 <div class="editor">
 	<div class="editor__sidebar" />
 	<div class="editor__element-edit-section">
@@ -352,6 +394,7 @@
 			<button on:click={onBackToStart}>Restart</button>
 			<button on:click={onPause}>Pause</button>
 			<button on:click={onPlay}>Play</button>
+			<button class:buttonActive={$shouldTimelineFollowCursor} on:click={onFollowCursor}>Follow Cursor</button>
 		</div>
 	</div>
 	<div class="editor__element-timeline-section">
@@ -424,5 +467,9 @@
 	.preview-canvas {
 		width: 100%;
 		height: 100%;
+	}
+
+	button.buttonActive {
+		background-color: rgb(90, 166, 242);
 	}
 </style>

@@ -7,7 +7,6 @@
 	const dispatch = createEventDispatcher();
 
 	$: divideAmmountBy = 60 / scale;
-	$: console.log(length);
 	$: amount = Math.ceil((length + 10) / divideAmmountBy);
 
 	let percision = 16;
