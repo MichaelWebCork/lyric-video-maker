@@ -21,9 +21,11 @@
 
       if (newX <= 0) {
         x = 0;
+				dispatch('cursorMove', x * scale);
         return;
       }
       x = newX;
+			dispatch('cursorMove', x * scale);
 		}
 	}
 
@@ -31,9 +33,8 @@
 		moving = false;
 	}
 
-	const onMouseDown = () => {
+	const onMouseDown = (e) => {
     moving = true;
-    dispatch('cursorMove');
 	};
 </script>
 

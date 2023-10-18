@@ -5,5 +5,6 @@ export const availablePlayStates = {
   pause: 'pause',
 }
 
+export const ticker = writable(0);
 export const playState = writable(availablePlayStates.pause);
 export const shouldTimelineFollowCursor = writable(true);

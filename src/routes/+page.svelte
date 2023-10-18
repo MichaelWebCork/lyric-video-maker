@@ -1,13 +1,13 @@
 <script>
 	import gsap from 'gsap';
 	import * as PIXI from 'pixi.js';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import exportWebWorker from '$lib/workers/export?worker';
 	import Timeline from '$lib/components/timeline/Timeline.svelte';
 	import { lyrics } from '$lib/lyrics.json';
 	import { lyricStore } from '$lib/stores/lyricStore';
-	import { shouldTimelineFollowCursor } from '$lib/stores/videoControlStore';
+	import { shouldTimelineFollowCursor, playState, availablePlayStates } from '$lib/stores/videoControlStore';
 	import { waveSurfer, waveSurferProgress } from '$lib/stores/waveSurferStore';
 	import { tl } from '$lib/stores/gsapTimeLineStore';
 	import AspectRatioContainer from '$lib/components/AspectRatioContainer.svelte';
@@ -31,17 +31,24 @@
 	let audioFileAsUrl;
 	let audioFileLength;
 
-	$: {
-		if ($tl.isActive()) {
-			break $;
-		}
-		$tl.seek(cursorX);
-		if (cursorX <= $waveSurfer?.getDuration()) {
-			$waveSurfer?.setTime(cursorX);
-			break $;
-		}
-		$waveSurfer?.setTime($waveSurfer?.getDuration());
+	const play = async () => {
+		await $waveSurfer?.play();
+		$tl.resume();
 	}
+
+	const pause = async () => {
+		await $waveSurfer?.pause();
+		$tl.pause();
+	}
+
+	$: {
+		if ($playState === availablePlayStates.play) {
+			play();
+		}
+		if ($playState === availablePlayStates.pause) {
+			pause();
+		}
+	};
 
 	let selectedElementEditorSectionTab = 'lyrics';
 	const elementEditorSectionTabs = [
@@ -59,7 +66,7 @@
 		x: width / 2,
 		y: height / 2
 	};
-	let app;
+	let pixiApp;
 
 	const setLength = () => {
 		const duration = $tl.duration();
@@ -67,8 +74,8 @@
 	};
 
 	const resetAllAnimations = () => {
-		while (app.stage.children?.[0]) {
-			app.stage.removeChild(app.stage.children?.[0]);
+		while (pixiApp.stage.children?.[0]) {
+			pixiApp.stage.removeChild(pixiApp.stage.children?.[0]);
 		}
 		$tl.clear();
 	};
@@ -93,7 +100,7 @@
 			currentLine.x = centerCordinates.x;
 			currentLine.y = centerCordinates.y + 100;
 			currentLine.alpha = 0;
-			app.stage.addChild(currentLine);
+			pixiApp.stage.addChild(currentLine);
 			$tl.to(
 				currentLine,
 				{
@@ -124,7 +131,7 @@
 		if (browser) {
 			exportWorker = new exportWebWorker();
 
-			app = new PIXI.Application({
+			pixiApp = new PIXI.Application({
 				view: canvasElement,
 				background: '#1099bb',
 				width,
@@ -136,15 +143,17 @@
 			$tl.seek(0);
 
 			// sync pixi and gsap
-			app.ticker.stop();
+			pixiApp.ticker.stop();
 			gsap.ticker.fps(fps);
 			let previousTime = 0;
 			gsap.ticker.add(() => {
-				currentTime = $waveSurfer ? $waveSurferProgress : $tl.time();
-				if ($tl.isActive() && currentTime !== previousTime) {
-					cursorX = currentTime;
+				if ($playState === availablePlayStates.play) {
+					cursorX = $waveSurferProgress;
 				}
-				app.ticker.update();
+				// console.log('cursorX', cursorX);
+				// if ($tl.isActive() && currentTime !== previousTime) {
+				// }
+				pixiApp.ticker.update();
 			});
 
 			setLyricAnimations();
@@ -193,7 +202,7 @@
 		const findById = (animation) => animation.id === id;
 		const animation = lyricAninmations.find(findById);
 		if (animation) {
-			app.stage.removeChild(animation.text);
+			pixiApp.stage.removeChild(animation.text);
 			$tl.remove(animation.text);
 		}
 		const { id: storeId, start, end, text } = $lyricStore.find(findById);
@@ -208,7 +217,7 @@
 		newLyricAnimation.text.x = centerCordinates.x;
 		newLyricAnimation.text.y = centerCordinates.y + 100;
 		newLyricAnimation.text.alpha = 0;
-		app.stage.addChild(newLyricAnimation.text);
+		pixiApp.stage.addChild(newLyricAnimation.text);
 		$tl.to(
 			newLyricAnimation.text,
 			{
@@ -246,22 +255,25 @@
 		updateAnimationById(detail.newLyricId);
 	};
 
-	const onCursorMove = () => {
-		$waveSurfer?.setTime(cursorX);
-		$tl.seek(cursorX);
+	const onCursorMove = ({ detail }) => {
+		console.log('cursor move', detail)
+		$waveSurfer.setTime(detail);
+		$waveSurferProgress = detail;
+		$tl.seek(detail);
+		cursorX = detail;
 	};
 
 	const onBackToStart = () => {
+		$waveSurfer.setTime(0);
+		$waveSurferProgress = 0;
 		$tl.seek(0);
-		$tl.resume();
+		cursorX = 0;
 	};
 	const onPlay = async () => {
-		await $waveSurfer?.play();
-		$tl.resume();
+		$playState = availablePlayStates.play;
 	};
 	const onPause = () => {
-		$waveSurfer?.pause();
-		$tl.pause();
+		$playState = availablePlayStates.pause;
 	};
 	const onTabClick = ({ detail }) => {
 		selectedElementEditorSectionTab = detail;
@@ -375,8 +387,12 @@
 			on:onTabClick={onTabClick}
 		/>
 		{#if selectedElementEditorSectionTab === 'upload'}
-			<Dropzone dontRead={true} on:readFile={readAudioFile} />
-			<BulkLyricInput on:textAreaInput={onTextAreaInput} />
+			<div class="editor__upload-tab">
+				<div>
+					<Dropzone dontRead={true} on:readFile={readAudioFile} placeholderText="Drag and drop audio file here (.wav, .mp3)" />
+				</div>
+				<BulkLyricInput on:textAreaInput={onTextAreaInput} />
+			</div>
 		{/if}
 		{#if selectedElementEditorSectionTab === 'lyrics'}
 			<LyricEditor on:lyricSplit={onLyricSplit} />
@@ -471,5 +487,13 @@
 
 	button.buttonActive {
 		background-color: rgb(90, 166, 242);
+	}
+
+	.editor__upload-tab {
+		padding: 20px;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
 	}
 </style>

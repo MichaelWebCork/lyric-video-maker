@@ -97,12 +97,10 @@
 	const onResetZoom = () => {
 		scale = initialScalse;
 	};
-	const onCursorMove = () => {
-		dispatch('cursorMove');
-	};
-	const onRulerClick = ({ detail }) => {
+	const onCursorMove = ({ detail }) => {
+		console.log(detail)
 		cursorX = detail / scale;
-		dispatch('cursorMove', detail);
+		dispatch('cursorMove', cursorX);
 	};
 	const onscroll = (e) => {
 		cursorTimeYPosition = e.srcElement.scrollTop + cursorTimeYPositionOffset;
@@ -119,7 +117,7 @@
 			bind:x={cursorX}
 			on:cursorMove={onCursorMove}
 		/>
-		<TimelineMarkers {scale} {length} on:rulerClick={onRulerClick} />
+		<TimelineMarkers {scale} {length} on:rulerClick={onCursorMove} />
 		<div class="timeline__waveform-container" style="width: {waveformContainerWidth}px" bind:this={waveformContainer} />
 		<div bind:this={timelineTracksContainer}>
 			{#if $lyricStore.length}

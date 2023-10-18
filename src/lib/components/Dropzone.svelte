@@ -4,6 +4,7 @@
 
 	export let dontRead = false;
 	export let readAs = 'text';
+	export let placeholderText = 'Drop file here.'
 
 	const dispatch = createEventDispatcher();
 
@@ -45,4 +46,6 @@
 	}
 </script>
 
-<Dropzone containerStyles={'background-color: transparent'} on:drop={handleFilesSelect} />
+<Dropzone containerStyles={'background-color: transparent'} on:drop={handleFilesSelect}>
+	{ placeholderText }
+</Dropzone>

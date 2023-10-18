@@ -35,8 +35,7 @@
 	}
 </script>
 
-<div class="bulk-lyric-input">
-	<div class="bulk-lyric-input__dropzone">
+	<div>
 		<Dropzone on:readFile={onReadFile}/>
 	</div>
 	<!-- <div class="bulk-lyric-input__input" contenteditable="true" placeholder="Or start typing..." /> -->
@@ -46,20 +45,11 @@
 		bind:value={lyrics}
 		on:input={onTextAreaInput}
 	/>
-</div>
 
 <style>
-	.bulk-lyric-input {
-		display: flex;
-		flex-direction: column;
-		flex: 1;
-		padding: 10px;
-		overflow: hidden;
-	}
 	.bulk-lyric-input__input {
 		flex: 1;
 		padding: 10px;
-		margin: 10px 0;
 		color: #fff;
 		background-color: transparent;
 	}
