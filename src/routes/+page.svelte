@@ -256,7 +256,6 @@
 	};
 
 	const onCursorMove = ({ detail }) => {
-		console.log('cursor move', detail)
 		$waveSurfer.setTime(detail);
 		$waveSurferProgress = detail;
 		$tl.seek(detail);

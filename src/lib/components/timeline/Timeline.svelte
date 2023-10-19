@@ -98,7 +98,6 @@
 		scale = initialScalse;
 	};
 	const onCursorMove = ({ detail }) => {
-		console.log(detail)
 		cursorX = detail / scale;
 		dispatch('cursorMove', cursorX);
 	};
