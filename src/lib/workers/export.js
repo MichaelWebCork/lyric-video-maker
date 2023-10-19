@@ -1,8 +1,14 @@
-import { Application, Text } from "@pixi/webworker";
+import { Application, Text, TextStyle, Assets } from "@pixi/webworker";
 import gsap from "gsap";
 import * as WebMMuxer from 'webm-muxer';
 
 const renderVideo = async (data) => {
+
+  Assets.addBundle('fonts', {
+    'Varela Round': '../fonts/VarelaRound-Regular.ttf',
+  });
+
+
   const fps = 24;
   console.log('test')
   console.log(new Date().getTime())
@@ -72,6 +78,11 @@ const renderVideo = async (data) => {
     }, line.start);
   });
 
+  const text = new Text('Made with LyricVideoBuilder.com', new TextStyle({ fontFamily: 'Varela Round', fontSize: 32 }));
+  text.anchor.set(1);
+  text.x = width - 80;
+  text.y = height - 50;
+  app.stage.addChild(text);
 
   // Set up muxer
   const { Muxer, StreamTarget } = WebMMuxer;

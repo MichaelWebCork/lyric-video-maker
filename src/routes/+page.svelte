@@ -16,7 +16,7 @@
 	import BulkLyricInput from '$lib/components/BulkLyricInput.svelte';
 	import Dropzone from '$lib/components/Dropzone.svelte';
 
-	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
+	// $lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
 
 	let exportWorker;
 	let canvasElement;
@@ -127,6 +127,14 @@
 		setLength();
 	};
 
+	const setupWatermark = () => {
+		const text = new PIXI.Text('Made with LyricVideoBuilder.com', new PIXI.TextStyle({ fontFamily: 'Varela Round', fontSize: 32 }));
+		text.anchor.set(1);
+		text.x = width - 80;
+		text.y = height - 50;
+		pixiApp.stage.addChild(text);
+	}
+
 	onMount(async () => {
 		if (browser) {
 			exportWorker = new exportWebWorker();
@@ -158,6 +166,7 @@
 
 			setLyricAnimations();
 			addAllAnimationsToTimeline();
+			setupWatermark();
 			// $tl.resume();
 		}
 	});
@@ -281,6 +290,7 @@
 		resetAllAnimations();
 		setLyricAnimations();
 		addAllAnimationsToTimeline();
+		setupWatermark();
 	};
 
 	function obtainMp3BytesInArrayBufferUsingFileAPI(selectedFile, callback) {
@@ -425,11 +435,13 @@
 </div>
 
 <style>
+	@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
 	:global(body) {
 		padding: 0;
 		margin: 0;
 	}
 	:global(*, *::before, *::after) {
+		font-family: 'Varela Round', sans-serif;
 		box-sizing: border-box;
 		&::-webkit-scrollbar {
 			width: 19px;
