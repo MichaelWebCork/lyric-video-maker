@@ -5,7 +5,11 @@
 	import { lyricStore } from '$lib/stores/lyricStore';
 	import { waveSurfer, waveSurferProgress } from '$lib/stores/waveSurferStore';
 	import { tl } from '$lib/stores/gsapTimeLineStore';
-	import { shouldTimelineFollowCursor } from '$lib/stores/videoControlStore';
+	import {
+		shouldTimelineFollowCursor,
+		playState,
+		availablePlayStates
+	} from '$lib/stores/videoControlStore';
 	import TimelineCursor from './TimelineCursor.svelte';
 	import TimelineMarkers from './TimelineMarkers.svelte';
 	import TimelineToolbar from './TimelineToolbar.svelte';
@@ -31,11 +35,12 @@
 	let cursorHeight;
 	const cursorOffsetHeight = 52;
 
-	
 	let waveformContainer;
-	let unsubscribeFromWaveSurferListener;
+	let unsubscribeFromWaveSurferAudioProcessListener;
+	let unsubscribeFromWaveSurferFinishListener;
 	const setWaveSurfer = async () => {
-		unsubscribeFromWaveSurferListener?.();
+		unsubscribeFromWaveSurferAudioProcessListener?.();
+		unsubscribeFromWaveSurferFinishListener?.();
 		$waveSurfer = WaveSurfer.create({
 			container: waveformContainer,
 			waveColor: '#ffffff99',
@@ -43,17 +48,22 @@
 			interact: false,
 			cursorWidth: 0,
 			fillParent: true,
-			height: audioTrackHeight,
+			height: audioTrackHeight
 		});
 		await $waveSurfer.load(audioFileAsUrl.data);
 		$waveSurfer.setTime($tl.time());
-		unsubscribeFromWaveSurferListener = $waveSurfer?.on('audioprocess', () => {
-			$waveSurferProgress = $waveSurfer.getCurrentTime()
+		unsubscribeFromWaveSurferAudioProcessListener = $waveSurfer?.on('audioprocess', () => {
+			$waveSurferProgress = $waveSurfer.getCurrentTime();
 		});
-	}
+		unsubscribeFromWaveSurferFinishListener = $waveSurfer?.on('finish', () => {
+			$playState = availablePlayStates.pause;
+		});
+	};
 
 	$: {
-		if (!browser || !audioFileAsUrl) { break $; }
+		if (!browser || !audioFileAsUrl) {
+			break $;
+		}
 		setWaveSurfer();
 	}
 
@@ -70,13 +80,18 @@
 	}
 
 	$: {
-		if (!$shouldTimelineFollowCursor) { break $; }
-		const currentPos = cursorX * scale;
-		if (currentPos < timelineScrollContainer?.offsetWidth / 2) { 
-			timelineScrollContainer?.scrollTo(0, timelineScrollContainer?.scrollTop || 0)
+		if (!$shouldTimelineFollowCursor) {
 			break $;
 		}
-		timelineScrollContainer?.scrollTo(currentPos - (timelineScrollContainer?.offsetWidth / 2) || 0, timelineScrollContainer?.scrollTop || 0)
+		const currentPos = cursorX * scale;
+		if (currentPos < timelineScrollContainer?.offsetWidth / 2) {
+			timelineScrollContainer?.scrollTo(0, timelineScrollContainer?.scrollTop || 0);
+			break $;
+		}
+		timelineScrollContainer?.scrollTo(
+			currentPos - timelineScrollContainer?.offsetWidth / 2 || 0,
+			timelineScrollContainer?.scrollTop || 0
+		);
 	}
 
 	const onZoom = ({ detail }) => {
@@ -117,7 +132,11 @@
 			on:cursorMove={onCursorMove}
 		/>
 		<TimelineMarkers {scale} {length} on:rulerClick={onCursorMove} />
-		<div class="timeline__waveform-container" style="width: {waveformContainerWidth}px" bind:this={waveformContainer} />
+		<div
+			class="timeline__waveform-container"
+			style="width: {waveformContainerWidth}px"
+			bind:this={waveformContainer}
+		/>
 		<div bind:this={timelineTracksContainer}>
 			{#if $lyricStore.length}
 				<TimelineTracks
@@ -161,7 +180,7 @@
 		flex: 1;
 		z-index: 1;
 		position: sticky;
-    top: 32px;
+		top: 32px;
 		background: #202024;
 	}
 </style>

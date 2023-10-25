@@ -7,7 +7,11 @@
 	import Timeline from '$lib/components/timeline/Timeline.svelte';
 	import { lyrics } from '$lib/lyrics.json';
 	import { lyricStore } from '$lib/stores/lyricStore';
-	import { shouldTimelineFollowCursor, playState, availablePlayStates } from '$lib/stores/videoControlStore';
+	import {
+		shouldTimelineFollowCursor,
+		playState,
+		availablePlayStates
+	} from '$lib/stores/videoControlStore';
 	import { waveSurfer, waveSurferProgress } from '$lib/stores/waveSurferStore';
 	import { tl } from '$lib/stores/gsapTimeLineStore';
 	import AspectRatioContainer from '$lib/components/AspectRatioContainer.svelte';
@@ -34,12 +38,12 @@
 	const play = async () => {
 		await $waveSurfer?.play();
 		$tl.resume();
-	}
+	};
 
 	const pause = async () => {
 		await $waveSurfer?.pause();
 		$tl.pause();
-	}
+	};
 
 	$: {
 		if ($playState === availablePlayStates.play) {
@@ -48,7 +52,7 @@
 		if ($playState === availablePlayStates.pause) {
 			pause();
 		}
-	};
+	}
 
 	let selectedElementEditorSectionTab = 'lyrics';
 	const elementEditorSectionTabs = [
@@ -128,12 +132,15 @@
 	};
 
 	const setupWatermark = () => {
-		const text = new PIXI.Text('Made with LyricVideoBuilder.com', new PIXI.TextStyle({ fontFamily: 'Varela Round', fontSize: 32 }));
+		const text = new PIXI.Text(
+			'Made with LyricVideoBuilder.com',
+			new PIXI.TextStyle({ fontFamily: 'Varela Round', fontSize: 32 })
+		);
 		text.anchor.set(1);
 		text.x = width - 80;
 		text.y = height - 50;
 		pixiApp.stage.addChild(text);
-	}
+	};
 
 	onMount(async () => {
 		if (browser) {
@@ -276,6 +283,9 @@
 		$waveSurferProgress = 0;
 		$tl.seek(0);
 		cursorX = 0;
+		// $playState = availablePlayStates.pause;
+		// $waveSurfer.pause();
+		// // $tl.pause();
 	};
 	const onPlay = async () => {
 		$playState = availablePlayStates.play;
@@ -368,7 +378,7 @@
 		e.preventDefault();
 		switch (e.keyCode) {
 			case 32: // space key
-				const isPlaying = $tl.isActive();
+				const isPlaying = $tl.isActive() || $playState === availablePlayStates.play;
 				if (isPlaying) {
 					onPause();
 					return;
@@ -398,7 +408,11 @@
 		{#if selectedElementEditorSectionTab === 'upload'}
 			<div class="editor__upload-tab">
 				<div>
-					<Dropzone dontRead={true} on:readFile={readAudioFile} placeholderText="Drag and drop audio file here (.wav, .mp3)" />
+					<Dropzone
+						dontRead={true}
+						on:readFile={readAudioFile}
+						placeholderText="Drag and drop audio file here (.wav, .mp3)"
+					/>
 				</div>
 				<BulkLyricInput on:textAreaInput={onTextAreaInput} />
 			</div>
@@ -419,7 +433,9 @@
 			<button on:click={onBackToStart}>Restart</button>
 			<button on:click={onPause}>Pause</button>
 			<button on:click={onPlay}>Play</button>
-			<button class:buttonActive={$shouldTimelineFollowCursor} on:click={onFollowCursor}>Follow Cursor</button>
+			<button class:buttonActive={$shouldTimelineFollowCursor} on:click={onFollowCursor}
+				>Follow Cursor</button
+			>
 		</div>
 	</div>
 	<div class="editor__element-timeline-section">
