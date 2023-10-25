@@ -57,6 +57,7 @@
 		});
 		unsubscribeFromWaveSurferFinishListener = $waveSurfer?.on('finish', () => {
 			$playState = availablePlayStates.pause;
+			$tl.seek(0);
 		});
 	};
 
