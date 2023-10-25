@@ -61,7 +61,7 @@ const renderVideo = async (data) => {
   const removeLastAnimationTimestamps = [];
   // app.stage.removeChild(currentLine)
   lyricAninmations.forEach((line) => {
-    removeLastAnimationTimestamps.push(Math.floor(line.end) * fps);
+    removeLastAnimationTimestamps.push(Math.floor(line.end * fps));
     const currentLine = line.text;
     currentLine.x = centerCordinates.x;
     currentLine.y = centerCordinates.y + 100;
@@ -169,6 +169,7 @@ const renderVideo = async (data) => {
     tl.progress(t);
 
     const lastAnimationEndFrame = removeLastAnimationTimestamps[0];
+    console.log(lastAnimationEndFrame)
     if (currentFrameNumber === lastAnimationEndFrame) {
       removeLastAnimationTimestamps.shift();
       const lastAnimation = lyricAninmations.shift();
