@@ -20,7 +20,7 @@
 	import BulkLyricInput from '$lib/components/BulkLyricInput.svelte';
 	import Dropzone from '$lib/components/Dropzone.svelte';
 
-	// $lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
+	$lyricStore = [...Object.values(lyrics).map((lyric) => ({ ...lyric, text: lyric.text.trim() }))];
 
 	let exportWorker;
 	let canvasElement;
@@ -181,11 +181,11 @@
 	const exportVideo = async () => {
 		// Set up file system access
 		const fileHandle = await window.showSaveFilePicker({
-			suggestedName: `video.webm`,
+			suggestedName: `video.mp4`,
 			types: [
 				{
 					description: 'Video File',
-					accept: { 'video/webm': ['.webm'] }
+					accept: { 'video/mp4': ['.mp4'] }
 				}
 			]
 		});

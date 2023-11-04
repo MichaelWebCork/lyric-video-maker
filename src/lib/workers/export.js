@@ -1,6 +1,7 @@
 import { Application, Text, TextStyle, Assets } from "@pixi/webworker";
 import gsap from "gsap";
-import * as WebMMuxer from 'webm-muxer';
+// import * as WebMMuxer from 'webm-muxer';
+import * as WebMMuxer from 'mp4-muxer';
 
 const renderVideo = async (data) => {
 
@@ -85,6 +86,32 @@ const renderVideo = async (data) => {
   app.stage.addChild(text);
 
   // Set up muxer
+  // const { Muxer, StreamTarget } = WebMMuxer;
+  // const muxer = new Muxer({
+  //   firstTimestampBehavior: 'offset',
+  //   target: new StreamTarget(
+  //     (data, position) => { 
+  //       self.postMessage({
+  //         data,
+  //         position
+  //       });
+  //     },
+  //     () => { console.log('Finished Muxing') }
+  //   ),
+  //   video: {
+  //     codec: 'V_VP9',
+  //     width,
+  //     height,
+  //     frameRate: fps
+  //   },
+  //   audio: {
+	// 		codec: 'A_OPUS',
+	// 		sampleRate: data.audioInfo.sampleRate,
+	// 		numberOfChannels: 2
+  //   }
+  // });
+
+  // MP4
   const { Muxer, StreamTarget } = WebMMuxer;
   const muxer = new Muxer({
     firstTimestampBehavior: 'offset',
@@ -98,18 +125,19 @@ const renderVideo = async (data) => {
       () => { console.log('Finished Muxing') }
     ),
     video: {
-      codec: 'V_VP9',
+      codec: 'avc',
       width,
       height,
       frameRate: fps
-    },
+  },
     audio: {
-			codec: 'A_OPUS',
+			codec: 'opus',
 			sampleRate: data.audioInfo.sampleRate,
 			numberOfChannels: 2
-    }
+    },
+    fastStart: 'in-memory'
   });
-
+1
 
   // Set up video encoder
   let videoEncoder = new VideoEncoder({
@@ -117,13 +145,22 @@ const renderVideo = async (data) => {
     error: (e) => console.error(e)
   });
 
+  // videoEncoder.configure({
+  //   codec: 'vp09.00.10.08',
+  //   width,
+  //   height,
+  //   bitrate: 1e6,
+  //   bitrateMode: 'constant'
+  // });
+
   videoEncoder.configure({
-    codec: 'vp09.00.10.08',
+    codec: 'avc1.640029',
     width,
     height,
     bitrate: 1e6,
     bitrateMode: 'constant'
   });
+
 
   // return;
   let audioData = new AudioData({
@@ -169,7 +206,6 @@ const renderVideo = async (data) => {
     tl.progress(t);
 
     const lastAnimationEndFrame = removeLastAnimationTimestamps[0];
-    console.log(lastAnimationEndFrame)
     if (currentFrameNumber === lastAnimationEndFrame) {
       removeLastAnimationTimestamps.shift();
       const lastAnimation = lyricAninmations.shift();
