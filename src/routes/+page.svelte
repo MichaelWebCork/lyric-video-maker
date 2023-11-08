@@ -1,4 +1,6 @@
 <script>
+	import '../app.postcss';
+
 	import gsap from 'gsap';
 	import * as PIXI from 'pixi.js';
 	import { onMount, tick } from 'svelte';
@@ -34,6 +36,22 @@
 	let audioInfo;
 	let audioFileAsUrl;
 	let audioFileLength;
+
+	// const login = async () => {
+	// 	const { data, error } = await supabase.auth.signInWithOtp({
+	// 		email: 'm.oconnell56@yahoo.ie',
+	// 		options: {
+	// 			// set this to false if you do not want the user to be automatically signed up
+	// 			shouldCreateUser: true,
+	// 			emailRedirectTo: 'http://localhost:5173/'
+	// 		}
+	// 	});
+	// 	console.log(data, error);
+	// };
+
+	// async function signOut() {
+	// 	const { error } = await supabase.auth.signOut();
+	// }
 
 	const play = async () => {
 		await $waveSurfer?.play();
@@ -397,56 +415,61 @@
 </script>
 
 <svelte:window on:keydown={onTimeLineKeyDown} />
-<div class="editor">
-	<div class="editor__sidebar" />
-	<div class="editor__element-edit-section">
-		<Tabs
-			tabs={elementEditorSectionTabs}
-			selectedKey={selectedElementEditorSectionTab}
-			on:onTabClick={onTabClick}
-		/>
-		{#if selectedElementEditorSectionTab === 'upload'}
-			<div class="editor__upload-tab">
-				<div>
-					<Dropzone
-						dontRead={true}
-						on:readFile={readAudioFile}
-						placeholderText="Drag and drop audio file here (.wav, .mp3)"
-					/>
-				</div>
-				<BulkLyricInput on:textAreaInput={onTextAreaInput} />
-			</div>
-		{/if}
-		{#if selectedElementEditorSectionTab === 'lyrics'}
-			<LyricEditor on:lyricSplit={onLyricSplit} />
-		{/if}
-		{#if selectedElementEditorSectionTab === 'style'}
-			<LyricEditor on:lyricSplit={onLyricSplit} />
-		{/if}
-	</div>
-	<div class="editor__element-preview-section">
-		<AspectRatioContainer>
-			<canvas class="preview-canvas" bind:this={canvasElement} />
-		</AspectRatioContainer>
-		<div>
-			<button on:click={exportVideo}>Export</button>
-			<button on:click={onBackToStart}>Restart</button>
-			<button on:click={onPause}>Pause</button>
-			<button on:click={onPlay}>Play</button>
-			<button class:buttonActive={$shouldTimelineFollowCursor} on:click={onFollowCursor}
-				>Follow Cursor</button
-			>
+<div>
+	<div class="editor">
+		<div class="editor__sidebar">
+			<!-- <button on:click={login}>Login</button>
+		<button on:click={signOut}>Sign out</button> -->
 		</div>
-	</div>
-	<div class="editor__element-timeline-section">
-		<Timeline
-			{length}
-			{audioFileAsUrl}
-			{audioFileLength}
-			bind:cursorX
-			on:cursorMove={onCursorMove}
-			on:timelineUpdate={({ detail }) => updateAnimationById(detail.id)}
-		/>
+		<div class="editor__element-edit-section">
+			<Tabs
+				tabs={elementEditorSectionTabs}
+				selectedKey={selectedElementEditorSectionTab}
+				on:onTabClick={onTabClick}
+			/>
+			{#if selectedElementEditorSectionTab === 'upload'}
+				<div class="editor__upload-tab">
+					<div>
+						<Dropzone
+							dontRead={true}
+							on:readFile={readAudioFile}
+							placeholderText="Drag and drop audio file here (.wav, .mp3)"
+						/>
+					</div>
+					<BulkLyricInput on:textAreaInput={onTextAreaInput} />
+				</div>
+			{/if}
+			{#if selectedElementEditorSectionTab === 'lyrics'}
+				<LyricEditor on:lyricSplit={onLyricSplit} />
+			{/if}
+			{#if selectedElementEditorSectionTab === 'style'}
+				<LyricEditor on:lyricSplit={onLyricSplit} />
+			{/if}
+		</div>
+		<div class="editor__element-preview-section">
+			<AspectRatioContainer>
+				<canvas class="preview-canvas" bind:this={canvasElement} />
+			</AspectRatioContainer>
+			<div>
+				<button on:click={exportVideo}>Export</button>
+				<button on:click={onBackToStart}>Restart</button>
+				<button on:click={onPause}>Pause</button>
+				<button on:click={onPlay}>Play</button>
+				<button class:buttonActive={$shouldTimelineFollowCursor} on:click={onFollowCursor}
+					>Follow Cursor</button
+				>
+			</div>
+		</div>
+		<div class="editor__element-timeline-section">
+			<Timeline
+				{length}
+				{audioFileAsUrl}
+				{audioFileLength}
+				bind:cursorX
+				on:cursorMove={onCursorMove}
+				on:timelineUpdate={({ detail }) => updateAnimationById(detail.id)}
+			/>
+		</div>
 	</div>
 </div>
 
@@ -480,7 +503,8 @@
 	}
 
 	.editor {
-		height: 100vh;
+		height: calc(100vh - 30px);
+		flex: 1;
 		display: grid;
 		grid-template-columns: 80px repeat(4, 3fr);
 		grid-template-rows: repeat(5, 1fr);
