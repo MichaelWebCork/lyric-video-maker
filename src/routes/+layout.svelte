@@ -3,12 +3,31 @@
 
 	import '../app.postcss';
 
-	let { session, supabase } = data;
-	const loggedIn = session?.user?.id;
+	import { invalidate } from '$app/navigation';
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+
+	$: ({ supabase, session } = data);
+	$: loggedIn = session?.user?.id;
+
+	onMount(() => {
+		const {
+			data: { subscription }
+		} = supabase.auth.onAuthStateChange((event, _session) => {
+			if (_session?.expires_at !== session?.expires_at) {
+				invalidate('supabase:auth');
+			}
+		});
+
+		return () => subscription.unsubscribe();
+	});
 
 	const logout = async () => {
-		console.log('logout');
 		const { error } = await supabase.auth.signOut();
+		if (error) {
+			return;
+		}
+		goto('/auth/login');
 	};
 </script>
 
