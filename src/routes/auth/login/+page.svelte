@@ -3,7 +3,6 @@
 
 	let { supabase } = data;
 	$: ({ supabase } = data);
-	$: console.log(supabase);
 
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
@@ -11,6 +10,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Loader2 } from 'lucide-svelte';
+	import { toast } from 'svoast';
 
 	let email;
 	let code;
@@ -45,20 +45,18 @@
 		const { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
 		loggingIn = false;
 		if (error) {
-			console.log('error', error);
+			toast.error(error.message);
 			return;
 		}
 		goto('/');
-		console.log(data);
-		console.log('logged in');
 	};
 </script>
 
 <Card.Root class="w-[350px]">
 	<Card.Header>
-		<Card.Title>Log in</Card.Title>
+		<Card.Title>Log in / Register</Card.Title>
 		<Card.Description>
-			To login or signup, enter your email and you will recieve a password.
+			To login or register, enter your email and you will recieve a one time log in code.
 		</Card.Description>
 	</Card.Header>
 	<Card.Content>
