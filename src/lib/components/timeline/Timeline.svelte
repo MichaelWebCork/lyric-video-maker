@@ -153,7 +153,6 @@
 <style>
 	.timeline {
 		height: 500px;
-		background: #202024;
 		display: flex;
 		user-select: none;
 		flex-direction: column;

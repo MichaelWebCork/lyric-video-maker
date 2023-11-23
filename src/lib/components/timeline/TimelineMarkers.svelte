@@ -62,7 +62,6 @@
 		flex-direction: column;
 		padding-bottom: 5px;
 		z-index: 1;
-		background: #202024;
 	}
 
 	.timeline-ruler__marker-line {

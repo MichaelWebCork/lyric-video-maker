@@ -80,7 +80,6 @@
 		flex-direction: column;
 		color: #fff;
 		min-height: 100vh;
-		background-color: #202024;
 	}
 
 	.nav {
@@ -88,7 +87,6 @@
 		display: flex;
 		align-items: center;
 		padding: 0 20px;
-		background-color: #202024;
 		color: #fff;
 		justify-content: space-between;
 	}

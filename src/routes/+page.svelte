@@ -482,24 +482,22 @@
 	:global(*, *::before, *::after) {
 		font-family: 'Varela Round', sans-serif;
 		box-sizing: border-box;
-		&::-webkit-scrollbar {
-			width: 19px;
-			height: 19px;
-			background-color: #202024;
-			z-index: 2;
-			position: relative;
-		}
-
-		&.app-timeline-trackpad::-webkit-scrollbar-corner {
-			background-color: #202024;
-		}
 
 		&::-webkit-scrollbar-thumb {
-			border-radius: 10px;
-			border: 7px solid #202024;
-			background-color: #545459;
-			background-clip: content-box;
+			color: #030a0e;
 		}
+	}
+
+	/* :global(*::-webkit-scrollbar) {
+		width: 10px;
+	} */
+	/* 
+	:global(*::-webkit-scrollbar-track) {
+		background: #1e1e24;
+	} */
+
+	:global(*&::-webkit-scrollbar-thumb) {
+		color: #030a0e;
 	}
 
 	.editor {
@@ -510,7 +508,7 @@
 		grid-template-rows: repeat(5, 1fr);
 		grid-column-gap: 0px;
 		grid-row-gap: 0px;
-		background-color: #202024;
+		/* background-color: #202024; */
 	}
 
 	.editor__sidebar {
