@@ -21,6 +21,7 @@
 		"postcss-nesting": "^12.0.1",
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.10.1",
+		"supabase": "^1.113.2",
 		"svelte": "^4.0.5",
 		"svoast": "^2.3.0",
 		"tailwindcss": "^3.3.2",
@@ -29,6 +30,7 @@
 	"type": "module",
 	"dependencies": {
 		"@pixi/webworker": "^7.2.4",
+		"@stripe/stripe-js": "^2.2.0",
 		"@supabase/ssr": "^0.0.9",
 		"@supabase/supabase-js": "^2.38.4",
 		"bits-ui": "^0.9.1",
@@ -39,6 +41,7 @@
 		"lucide-svelte": "^0.292.0",
 		"mp4-muxer": "^3.0.1",
 		"pixi.js": "^7.2.4",
+		"stripe": "^14.5.0",
 		"svelte-file-dropzone": "^2.0.2",
 		"sveltekit-superforms": "^1.10.1",
 		"tailwind-merge": "^2.0.0",
