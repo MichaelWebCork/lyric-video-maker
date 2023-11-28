@@ -1,7 +1,7 @@
 <script>
 	import '../app.postcss';
 
-	import gsap from 'gsap/dist/gsap';
+	import gsap from 'gsap';
 	import * as PIXI from 'pixi.js';
 	import { onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
@@ -79,7 +79,6 @@
 		{ key: 'style', label: 'Style' }
 	];
 
-	$tl = gsap.timeline();
 	const removeLastAnimationTimestamps = [];
 	const fps = 24;
 	const width = 1920;
@@ -162,6 +161,8 @@
 
 	onMount(async () => {
 		if (browser) {
+			$tl = gsap.timeline();
+
 			exportWorker = new exportWebWorker();
 
 			pixiApp = new PIXI.Application({

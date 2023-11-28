@@ -1,7 +1,5 @@
 import { Application, Text, TextStyle, Assets } from '@pixi/webworker';
-// import gsap from "gsap";
-import gsap from 'gsap/dist/gsap';
-
+import gsap from 'gsap';
 // import * as WebMMuxer from 'webm-muxer';
 import * as WebMMuxer from 'mp4-muxer';
 
