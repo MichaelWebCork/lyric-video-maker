@@ -1,3 +1,6 @@
+// Should maybe make this an api route on vercel instead of supabase
+// https://www.youtube.com/watch?v=6OMVWiiycLs&t=434s
+
 // Follow this setup guide to integrate the Deno language server with your editor:
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
@@ -5,7 +8,7 @@
 // Import via bare specifier thanks to the import_map.json file.
 import Stripe from 'https://esm.sh/stripe@11.1.0?target=deno';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_API_KEY') as string, {
+const stripe = new Stripe(Deno.env.get('SECRET_STRIPE_API_KEY') as string, {
 	// This is needed to use the Fetch API rather than relying on the Node http
 	// package.
 	apiVersion: '2022-11-15',
@@ -27,7 +30,7 @@ Deno.serve(async (request) => {
 		receivedEvent = await stripe.webhooks.constructEventAsync(
 			body,
 			signature!,
-			Deno.env.get('STRIPE_WEBHOOK_SIGNING_SECRET')!,
+			Deno.env.get('STRIPE_PUBLIC_WEBHOOK_SIGNING_SECRET')!,
 			undefined,
 			cryptoProvider
 		);
