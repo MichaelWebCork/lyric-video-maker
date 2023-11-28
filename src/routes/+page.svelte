@@ -1,7 +1,7 @@
 <script>
 	import '../app.postcss';
 
-	import gsap from 'gsap';
+	import gsap from 'gsap/dist/gsap';
 	import * as PIXI from 'pixi.js';
 	import { onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
