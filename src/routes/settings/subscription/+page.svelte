@@ -1,1 +1,5 @@
-<h2>Hello Settings</h2>
+<script>
+	import StripePricingTabel from '../../../lib/components/StripePricingTabel.svelte';
+</script>
+
+<StripePricingTabel />
