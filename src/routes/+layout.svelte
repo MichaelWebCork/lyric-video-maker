@@ -1,6 +1,5 @@
 <script>
 	export let data;
-
 	import '../app.postcss';
 
 	import { invalidate } from '$app/navigation';
@@ -8,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import { Toasts } from 'svoast';
 
+	let { supabase, session } = data;
 	$: ({ supabase, session } = data);
 	$: loggedIn = session?.user?.id;
 

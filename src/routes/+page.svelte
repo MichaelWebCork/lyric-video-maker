@@ -1,8 +1,9 @@
 <script>
 	import '../app.postcss';
 	import Editor from '../lib/components/editor/Editor.svelte';
-
 	import { browser } from '$app/environment';
+
+	// $: ({ supabase } = data);
 </script>
 
 <div>
