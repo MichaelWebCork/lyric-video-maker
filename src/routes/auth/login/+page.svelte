@@ -48,6 +48,10 @@
 			toast.error(error.message);
 			return;
 		}
+		if (data.next) {
+			goto(data.next);
+			return;
+		}
 		goto('/');
 	};
 </script>
