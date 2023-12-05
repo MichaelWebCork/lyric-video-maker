@@ -4,6 +4,9 @@
 	let { supabase } = data;
 	$: ({ supabase } = data);
 
+	console.log(data);
+	console.log(data.next);
+
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
@@ -21,9 +24,10 @@
 	const sendCode = async () => {
 		sendingCode = true;
 		if (!email?.length) {
+			sendingCode = false;
 			return;
 		}
-		const { data, error } = await supabase.auth.signInWithOtp({
+		const { error } = await supabase.auth.signInWithOtp({
 			email,
 			options: {
 				// set this to false if you do not want the user to be automatically signed up
@@ -32,6 +36,11 @@
 			}
 		});
 		sendingCode = false;
+		if (error) {
+			console.log(error);
+			toast.error(error.message);
+			return;
+		}
 		if (!error) {
 			tokenSent = true;
 		}
@@ -40,14 +49,16 @@
 	const login = async () => {
 		loggingIn = true;
 		if (!code?.length) {
+			loggingIn = false;
 			return;
 		}
-		const { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
+		const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
 		loggingIn = false;
 		if (error) {
-			toast.error(error.message);
+			toast.error(error.message || error.msg);
 			return;
 		}
+
 		if (data.next) {
 			goto(data.next);
 			return;
@@ -68,22 +79,26 @@
 			{#if tokenSent}
 				<div class="grid w-full items-center gap-4">
 					<div class="flex flex-col space-y-1.5">
-						<Label for="email">6 digit code</Label>
-						<Input
-							type="number"
-							autocomplete="one-time-code"
-							inputmode="numeric"
-							maxlength="6"
-							pattern="[0-9]"
-							bind:value={code}
-						/>
+						<form on:submit|preventDefault={login}>
+							<Label for="email">6 digit code</Label>
+							<Input
+								type="number"
+								autocomplete="one-time-code"
+								inputmode="numeric"
+								maxlength="6"
+								pattern="[0-9]"
+								bind:value={code}
+							/>
+						</form>
 					</div>
 				</div>
 			{:else}
 				<div class="grid w-full items-center gap-4">
 					<div class="flex flex-col space-y-1.5">
-						<Label for="email">Email</Label>
-						<Input id="email" placeholder="name@example.com" bind:value={email} />
+						<form on:submit|preventDefault={sendCode}>
+							<Label for="email">Email</Label>
+							<Input id="email" placeholder="name@example.com" bind:value={email} />
+						</form>
 					</div>
 				</div>
 			{/if}

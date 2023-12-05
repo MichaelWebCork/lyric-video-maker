@@ -43,8 +43,8 @@
 	};
 </script>
 
-<Tabs.Root value="monthly" class="flex flex-col items-center ">
-	<Tabs.List>
+<Tabs.Root value="monthly" class="mt-10 flex flex-col items-center">
+	<Tabs.List class="mb-10">
 		<Tabs.Trigger value="monthly">Monthly</Tabs.Trigger>
 		<Tabs.Trigger value="yearly">Yearly (15% off)</Tabs.Trigger>
 	</Tabs.List>
