@@ -7,14 +7,14 @@
 
 	const monthlyPlans = [
 		{
-			id: 0,
+			id: 'price_1OHqGrDFuR9IRt445rCT7vS6',
 			name: 'Artist',
 			description:
 				'15% off for Yearly Subscriptions. Removes water mark from videos, allows greater customization of videos, allows 10 videos per month.',
 			price: 30
 		},
 		{
-			id: 1,
+			id: 'price_1OHrTFDFuR9IRt44L8JIQeyH',
 			name: 'Agency',
 			description:
 				'15% off for Yearly Subscriptions. For marketing agencies and labels, allows unlimited video exports each month.',
@@ -23,14 +23,14 @@
 	];
 	const yearlyPlans = [
 		{
-			id: 0,
+			id: 'price_1OHqGrDFuR9IRt44zfYdRB2F',
 			name: 'Artist',
 			description:
 				'15% off for Yearly Subscriptions. Removes water mark from videos, allows greater customization of videos, allows 10 videos per month.',
 			price: 306
 		},
 		{
-			id: 1,
+			id: 'price_1OHrTFDFuR9IRt44d80hB2ef',
 			name: 'Agency',
 			description:
 				'15% off for Yearly Subscriptions. For marketing agencies and labels, allows unlimited video exports each month.',
