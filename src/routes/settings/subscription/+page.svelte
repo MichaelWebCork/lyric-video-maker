@@ -14,7 +14,7 @@
 			goto(`/auth/login?next=${redirectLink}`);
 			return;
 		}
-		const response = await fetch('/stripe/checkout-session', {
+		const response = await fetch('/api/stripe/checkout-session', {
 			method: 'POST',
 			body: JSON.stringify({
 				priceId: id,

@@ -33,6 +33,9 @@ export async function POST({ request }) {
 	console.log('event.type: ', event.type);
 
 	switch (event.type) {
+		case 'checkout.session.completed':
+			// checkout complete
+			break;
 		case 'customer.subscription.created':
 			// Subscription was created
 			// Note: status will be `incomplete`
