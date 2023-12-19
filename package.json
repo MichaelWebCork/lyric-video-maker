@@ -36,6 +36,7 @@
 		"bits-ui": "^0.9.1",
 		"clsx": "^2.0.0",
 		"cmdk-sv": "^0.0.6",
+		"cross-blob": "^3.0.2",
 		"formsnap": "^0.4.1",
 		"gsap": "^3.12.2",
 		"lucide-svelte": "^0.292.0",

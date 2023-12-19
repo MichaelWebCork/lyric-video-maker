@@ -1,3 +1,4 @@
+import Blob from 'cross-blob';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import { createServerClient } from '@supabase/ssr';
 
@@ -26,9 +27,12 @@ export const handle = async ({ event, resolve }) => {
 		return session;
 	};
 
-	return resolve(event, {
-		filterSerializedResponseHeaders(name) {
-			return name === 'content-range';
-		}
-	});
+	if (event.request.method !== 'OPTIONS') {
+		return resolve(event, {
+			filterSerializedResponseHeaders(name) {
+				return name === 'content-range';
+			}
+		});
+	}
+	return new Response(new Blob(), { status: 200 });
 };
