@@ -26,9 +26,11 @@ export const handle = async ({ event, resolve }) => {
 		return session;
 	};
 
-	return resolve(event, {
+	const response = resolve(event, {
 		filterSerializedResponseHeaders(name) {
 			return name === 'content-range';
 		}
 	});
+	response.headers.append('Access-Control-Allow-Origin', '*');
+	return response;
 };
