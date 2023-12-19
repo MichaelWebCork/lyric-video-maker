@@ -5,6 +5,7 @@ import { env } from '$env/dynamic/private';
 
 // endpoint to handle incoming webhooks
 export async function POST({ request }) {
+	console.log('Im hit');
 	// extract body
 	const body = await request.text();
 
