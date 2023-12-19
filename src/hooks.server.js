@@ -27,7 +27,7 @@ export const handle = async ({ event, resolve }) => {
 		return session;
 	};
 
-	if (event.request.method !== 'OPTIONS') {
+	if (event.request.method === 'OPTIONS') {
 		return new Response(new Blob(), { status: 200 });
 	}
 
