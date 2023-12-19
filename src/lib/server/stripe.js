@@ -4,5 +4,5 @@ import { env } from '$env/dynamic/private';
 // export the stripe instance
 export const stripe = Stripe(env.STRIPE_API_KEY, {
 	// pin the api version
-	apiVersion: '2022-11-15'
+	apiVersion: '2023-10-16'
 });
