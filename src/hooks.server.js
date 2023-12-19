@@ -1,5 +1,6 @@
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import { createServerClient } from '@supabase/ssr';
+import Blob from 'cross-blob';
 
 export const handle = async ({ event, resolve }) => {
 	event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
@@ -26,7 +27,11 @@ export const handle = async ({ event, resolve }) => {
 		return session;
 	};
 
-	const response = resolve(event, {
+	if (event.request.method !== 'OPTIONS') {
+		return new Response(new Blob(), { status: 200 });
+	}
+
+	const response = await resolve(event, {
 		filterSerializedResponseHeaders(name) {
 			return name === 'content-range';
 		}
