@@ -18,7 +18,7 @@
 		padding: 0;
 		margin: 0;
 	}
-	:global(*, *::before, *::after) {
+	:global(:where(*, *::before, *::after)) {
 		font-family: 'Varela Round', sans-serif;
 		box-sizing: border-box;
 
