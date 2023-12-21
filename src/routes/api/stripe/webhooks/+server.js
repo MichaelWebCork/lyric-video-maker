@@ -3,6 +3,10 @@ import { stripe } from '$lib/server/stripe';
 import { error, json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 
+export const config = {
+	runtime: 'nodejs18.x'
+};
+
 // endpoint to handle incoming webhooks
 export async function POST({ request }) {
 	console.log('Im hit');
@@ -23,7 +27,7 @@ export async function POST({ request }) {
 		console.warn('⚠️  Webhook signature verification failed.', err.message);
 
 		// return, because signature is invalid
-		throw error(400, 'Invalid request');
+		error(400, 'Invalid request');
 	}
 
 	/* Signature has been verified, so we can process events
