@@ -1,7 +1,7 @@
 // in src/routes/stripe/webhooks/+server.js
 import { stripe } from '$lib/server/stripe';
 import { error, json } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
+// import { env } from '$env/dynamic/private';
 
 export const config = {
 	runtime: 'edge'
@@ -21,7 +21,12 @@ export async function POST({ request }) {
 
 	// verify the signature matches the body
 	try {
-		event = stripe.webhooks.constructEvent(body, signature, env.STRIPE_WEBHOOK_SIGNING_SECRET);
+		// event = stripe.webhooks.constructEvent(body, signature, env.STRIPE_WEBHOOK_SIGNING_SECRET);
+		event = stripe.webhooks.constructEvent(
+			body,
+			signature,
+			'whsec_NghENbaXa3Xa8oQZhnv7irKpyiOkYj6I'
+		);
 	} catch (err) {
 		// warn when signature is invalid
 		console.warn('⚠️  Webhook signature verification failed.', err.message);
