@@ -4,7 +4,7 @@ import { error, json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 
 export const config = {
-	runtime: 'nodejs18.x'
+	runtime: 'edge'
 };
 
 // endpoint to handle incoming webhooks
